@@ -1,0 +1,29 @@
+id,phone_raw,market_hint,notes_for_candidate
+P01,(703) 997-2894,DC Metro,Public main line from company website (large multi-trade). Expect identity hit.
+P02,703-752-1251,DC Metro,Public main line from company website (HVAC/plumbing/electrical).
+P03,(703) 477-9016,DC Metro,Public main line from company website (plumbing).
+P04,301.388.8855,DC Metro,Public listing for an electrical company (Upper Marlboro / DC Metro).
+P05,202-351-6878,DC Metro,Public main line from company website (plumbing/HVAC).
+P06,+1 (737) 381-7024,Austin,Public main line from company website (electrical). Format variant with +1.
+P07,512-537-8767,Austin,Public main line from company website (plumbing).
+P08,(512) 943-7070,Austin,Public main line from company website (plumbing/HVAC/electrical).
+P09,5124881120,Austin,Digits-only variant of a public company main line (HVAC/plumbing/electrical).
+P10,512-524-3443,Austin,Public main line from company website (plumbing franchise).
+P11,512-298-4916,Austin,Public main line from company website (plumbing).
+P12,(415) 843-2900,SF Bay,Public main line from company website (plumbing/HVAC/electrical).
+P13,650-343-4700,SF Bay,Second public main line from same company as P12 (Peninsula).
+P14,415-226-4125,SF Bay,Public main line from company website (HVAC/plumbing).
+P15,925-503-4838,SF Bay,Public directory listing for a plumbing contractor (Antioch area).
+P16,415-656-2130,SF Bay,Public main line from company website (plumbing).
+P17,7034779016,DC Metro,Digits-only duplicate of P03 — same identity expected after normalization.
+P18,+15125378767,Austin,E.164-ish duplicate of P07 — same identity expected.
+P19,1-415-843-2900,SF Bay,Leading-1 duplicate of P12 — same identity expected.
+P20,(202) 555-0100,DC Metro,Reserved 555-01xx style — expect no legitimate GBP / no licenses.
+P21,512-555-0199,Austin,Reserved 555-01xx style — expect no legitimate GBP / no licenses.
+P22,415-555-0142,SF Bay,Reserved 555-01xx style — expect no legitimate GBP / no licenses.
+P23,000-000-0000,,Invalid — normalize should reject or mark invalid.
+P24,12345,,Too short — invalid.
+P25,(999) 999-9999,,Implausible — expect found=false or very low confidence.
+P26,703-997-2894 x0,DC Metro,Same as P01 with junk extension noise — test sanitization.
+P27,tel:+17034779016,DC Metro,URI-ish duplicate of P03.
+P28, (512) 400-0749 ,Austin,Public secondary/emergency line from same company family as P08 — may resolve to related identity.
