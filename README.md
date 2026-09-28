@@ -65,7 +65,7 @@ To force a fresh provider and board search:
 result = find_licenses("(512) 943-7070", refresh=True)
 ```
 
-`find_licenses` is the thin tool-style interface for the full pipeline. This project does not include a separate HTTP or full MCP server.
+`find_licenses(phone)` is the thin tool interface for the full pipeline. The implementation uses the function option rather than a separate HTTP endpoint or full MCP server.
 
 ## Architecture
 
@@ -238,9 +238,9 @@ Current limitations include:
 - multi-location or multi-state businesses;
 - CAPTCHA/WAF restrictions and board outages;
 - current-only official datasets that may omit historical licenses;
-- changing source schemas and licensing requirements.
+- changing source schemas and licensing requirements;
 - common or similar business names that cannot be safely matched without stronger corroborating evidence;
-- trades or localities where a statewide license may not be required or where licensing exemptions apply;
+- trades or localities where a statewide license may not be required or where licensing exemptions apply.
 
 ## With more time
 
