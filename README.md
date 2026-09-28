@@ -239,6 +239,8 @@ Current limitations include:
 - CAPTCHA/WAF restrictions and board outages;
 - current-only official datasets that may omit historical licenses;
 - changing source schemas and licensing requirements.
+- common or similar business names that cannot be safely matched without stronger corroborating evidence;
+- trades or localities where a statewide license may not be required or where licensing exemptions apply;
 
 ## With more time
 
