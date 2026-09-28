@@ -40,8 +40,15 @@ def test_cli_loads_api_key_from_local_dotenv(monkeypatch, tmp_path, capsys) -> N
             captured["api_key"] = api_key
 
     class FakeResolver:
-        def __init__(self, places_client: object, category_mapper: object) -> None:
+        def __init__(
+            self,
+            places_client: object,
+            category_mapper: object,
+            *,
+            website_client: object,
+        ) -> None:
             captured["mapped_category"] = category_mapper.map(["plumber"])[0]
+            captured["website_client"] = type(website_client).__name__
 
         def resolve(self, raw_phone: str) -> IdentityLookupResult:
             return IdentityLookupResult(
@@ -56,7 +63,11 @@ def test_cli_loads_api_key_from_local_dotenv(monkeypatch, tmp_path, capsys) -> N
     exit_code = cli.run(["5125551234"])
 
     assert exit_code == 0
-    assert captured == {"api_key": "test-key", "mapped_category": "plumbing"}
+    assert captured == {
+        "api_key": "test-key",
+        "mapped_category": "plumbing",
+        "website_client": "FirstPartyWebsiteClient",
+    }
     output = json.loads(capsys.readouterr().out)
     assert output["found"] is False
     assert {"found", "confidence", "identity", "evidence", "notes"} <= output.keys()

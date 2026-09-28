@@ -1,0 +1,128 @@
+{
+  "input_phone": {
+    "e164": "+14156562130",
+    "extension": null
+  },
+  "pipeline_status": "partial",
+  "identity_result": {
+    "found": true,
+    "confidence": "medium",
+    "input_phone": {
+      "e164": "+14156562130",
+      "extension": null
+    },
+    "identity": {
+      "business_name": "Roto-Rooter Plumbing & Water Cleanup",
+      "legal_name": null,
+      "dba": null,
+      "owner_principal": null,
+      "phone": "+14156562130",
+      "address": "2873 Mission St #3, San Francisco, CA 94110, USA",
+      "service_area": false,
+      "states": [
+        "CA"
+      ],
+      "business_status": "OPERATIONAL",
+      "website": "https://www.rotorooter.com/sanfrancisco/?utm_source=Google&utm_medium=organic&utm_campaign=gmb&utm_content=website",
+      "place_id": "ChIJVVVVVamHhYARR_QEw_Qf1D0",
+      "moved_to_place_id": null,
+      "raw_categories": [
+        "plumber",
+        "general_contractor",
+        "service",
+        "point_of_interest",
+        "establishment"
+      ],
+      "normalized_categories": [
+        "plumbing",
+        "renovation"
+      ]
+    },
+    "evidence": [
+      {
+        "source": "google_places_details",
+        "source_id": "ChIJVVVVVamHhYARR_QEw_Qf1D0",
+        "url": "https://maps.google.com/?cid=4455221067480626247&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+        "observed": {
+          "public_name": "Roto-Rooter Plumbing & Water Cleanup",
+          "national_phone": "(415) 964-3302",
+          "national_phone_normalized": "+14159643302",
+          "international_phone": "+1 415-964-3302",
+          "international_phone_normalized": "+14159643302",
+          "address": "2873 Mission St #3, San Francisco, CA 94110, USA",
+          "service_area": false,
+          "business_status": "OPERATIONAL",
+          "website": "https://www.rotorooter.com/sanfrancisco/?utm_source=Google&utm_medium=organic&utm_campaign=gmb&utm_content=website",
+          "raw_categories": [
+            "plumber",
+            "general_contractor",
+            "service",
+            "point_of_interest",
+            "establishment"
+          ]
+        }
+      },
+      {
+        "source": "official_business_website",
+        "source_id": "ChIJVVVVVamHhYARR_QEw_Qf1D0",
+        "url": "https://www.rotorooter.com/sanfrancisco/?utm_source=Google&utm_medium=organic&utm_campaign=gmb&utm_content=website",
+        "observed": {
+          "public_name": "Roto-Rooter Plumbing & Water Cleanup",
+          "website_phone": "415-656-2130",
+          "website_phone_normalized": "+14156562130",
+          "address": "2873 Mission St #3, San Francisco, CA 94110, USA",
+          "places_returned_phones": [
+            "+1 415-964-3302",
+            "(415) 964-3302"
+          ],
+          "places_phone_verification": "mismatch"
+        }
+      }
+    ],
+    "assessments": [
+      {
+        "source_id": "ChIJVVVVVamHhYARR_QEw_Qf1D0",
+        "phone_verification": "mismatch",
+        "conflicts": [
+          "The phone returned by Google Places normalizes to a different number than the input."
+        ]
+      }
+    ],
+    "notes": [
+      "First-party website evidence exactly matched the input phone, Places business name, and full Places street address.",
+      "That corroboration overcame the different phone returned by Google Places; the Places phone mismatch remains visible in the evidence and candidate assessment.",
+      "The Google display name is not asserted to be a legal name or DBA."
+    ],
+    "error": null
+  },
+  "license_result": {
+    "identity_place_id": "ChIJVVVVVamHhYARR_QEw_Qf1D0",
+    "board_results": [
+      {
+        "board_id": "CSLB",
+        "board_name": "California Contractors State License Board",
+        "jurisdiction": "CA",
+        "strategy": "cslb_license_master",
+        "search_status": "unreachable",
+        "source_url": "https://www.cslb.ca.gov/onlineservices/dataportal/ContractorList",
+        "fetched_at": "2026-09-28T18:56:29.562609Z",
+        "match_decisions": [],
+        "accepted_licenses": [],
+        "notes": [
+          "CSLB did not return its License Master CSV."
+        ]
+      }
+    ],
+    "accepted_licenses": [],
+    "notes": [
+      "Board search status describes source access; it does not describe license standing or identity-match confidence.",
+      "No license candidate was accepted for this identity; this does not mean the business is unlicensed.",
+      "One or more relevant searches were incomplete or intentionally skipped."
+    ]
+  },
+  "cache": {
+    "status": "miss_not_saved",
+    "last_good_preserved": false
+  },
+  "notes": []
+}

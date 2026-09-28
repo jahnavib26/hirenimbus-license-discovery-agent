@@ -1,0 +1,27 @@
+{
+  "input_phone": null,
+  "pipeline_status": "failed",
+  "identity_result": {
+    "found": false,
+    "confidence": "low",
+    "input_phone": null,
+    "identity": null,
+    "evidence": [],
+    "assessments": [],
+    "notes": [
+      "Input validation failed before any external lookup."
+    ],
+    "error": {
+      "kind": "invalid_input",
+      "message": "Only valid U.S. phone numbers are supported."
+    }
+  },
+  "license_result": null,
+  "cache": {
+    "status": "miss_not_saved",
+    "last_good_preserved": false
+  },
+  "notes": [
+    "Invalid input was not cached."
+  ]
+}

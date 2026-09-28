@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "hirenimbus-license-discovery-agent"
 version = "0.1.0"
-description = "Explainable phone-to-business identity resolution for HireNimbus"
+description = "Explainable phone-to-business identity and contractor-license discovery for HireNimbus"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [

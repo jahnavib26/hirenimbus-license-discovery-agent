@@ -1,0 +1,320 @@
+{
+  "input_phone": {
+    "e164": "+15124881120",
+    "extension": null
+  },
+  "pipeline_status": "partial",
+  "identity_result": {
+    "found": true,
+    "confidence": "medium",
+    "input_phone": {
+      "e164": "+15124881120",
+      "extension": null
+    },
+    "identity": {
+      "business_name": "Fox Service Company",
+      "legal_name": null,
+      "dba": null,
+      "owner_principal": null,
+      "phone": "+15124881120",
+      "address": "1506 Ferguson Ln Ste 102, Austin, TX 78754, USA",
+      "service_area": false,
+      "states": [
+        "TX"
+      ],
+      "business_status": "OPERATIONAL",
+      "website": "https://www.foxservice.com/",
+      "place_id": "ChIJQQ05e7y0RIYRxaK_NJ0dPKs",
+      "moved_to_place_id": null,
+      "raw_categories": [
+        "plumber",
+        "electrician",
+        "general_contractor",
+        "point_of_interest",
+        "service",
+        "establishment"
+      ],
+      "normalized_categories": [
+        "plumbing",
+        "electrical",
+        "renovation"
+      ]
+    },
+    "evidence": [
+      {
+        "source": "google_places_details",
+        "source_id": "ChIJQQ05e7y0RIYRxaK_NJ0dPKs",
+        "url": "https://maps.google.com/?cid=12338769640120361669&g_mp=CiVnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLkdldFBsYWNlEAIYBCAA",
+        "observed": {
+          "public_name": "Fox Service Company",
+          "national_phone": "(512) 488-1120",
+          "national_phone_normalized": "+15124881120",
+          "international_phone": "+1 512-488-1120",
+          "international_phone_normalized": "+15124881120",
+          "address": "1506 Ferguson Ln Ste 102, Austin, TX 78754, USA",
+          "service_area": false,
+          "business_status": "OPERATIONAL",
+          "website": "https://www.foxservice.com/",
+          "raw_categories": [
+            "plumber",
+            "electrician",
+            "general_contractor",
+            "point_of_interest",
+            "service",
+            "establishment"
+          ]
+        }
+      }
+    ],
+    "assessments": [
+      {
+        "source_id": "ChIJQQ05e7y0RIYRxaK_NJ0dPKs",
+        "phone_verification": "exact",
+        "conflicts": []
+      }
+    ],
+    "notes": [
+      "A single Place Details record exactly matches the normalized input phone.",
+      "The identity is verified from one source, so confidence is medium.",
+      "The Google display name is not asserted to be a legal name or DBA."
+    ],
+    "error": null
+  },
+  "license_result": {
+    "identity_place_id": "ChIJQQ05e7y0RIYRxaK_NJ0dPKs",
+    "board_results": [
+      {
+        "board_id": "TSBPE",
+        "board_name": "Texas State Board of Plumbing Examiners",
+        "jurisdiction": "TX",
+        "strategy": "free_licensee_lists",
+        "search_status": "unreachable",
+        "source_url": "https://tsbpe.texas.gov/free-licensee-list/",
+        "fetched_at": "2026-09-28T18:56:27.895925Z",
+        "match_decisions": [],
+        "accepted_licenses": [],
+        "notes": [
+          "Client error '403 Forbidden' for url 'https://tsbpe.texas.gov/download-csv/RMP/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403"
+        ]
+      },
+      {
+        "board_id": "TDLR",
+        "board_name": "Texas Department of Licensing and Regulation",
+        "jurisdiction": "TX",
+        "strategy": "tdlr_all_licenses_open_data",
+        "search_status": "ok",
+        "source_url": "https://data.texas.gov/dataset/TDLR-All-Licenses/7358-krk7",
+        "fetched_at": "2026-09-28T18:56:28.124628Z",
+        "match_decisions": [
+          {
+            "candidate": {
+              "board_id": "TDLR",
+              "board_name": "Texas Department of Licensing and Regulation",
+              "source_strategy": "tdlr_all_licenses_open_data",
+              "license_number": "33423",
+              "holder_name": "FOX SERVICE COMPANY",
+              "holder_name_role": "business",
+              "raw_license_type": "Electrical Contractor",
+              "raw_classification": "EC",
+              "raw_license_status": null,
+              "issued_date": null,
+              "expiration_date": "03/13/2027",
+              "address": "4300 SOUTH CONGRESS AVENUE, AUSTIN TX 78745",
+              "state": "TX",
+              "phone": "5124426782",
+              "source_fields": {
+                "license_type": "Electrical Contractor",
+                "license_number": "33423",
+                "business_county": "TRAVIS",
+                "business_name": "FOX SERVICE COMPANY",
+                "business_address_line1": "4300 SOUTH CONGRESS AVENUE",
+                "business_city_state_zip": "AUSTIN TX 78745",
+                "business_telephone": "5124426782",
+                "license_expiration_date_mmddccyy": "03/13/2027",
+                "owner_name": "FOX SERVICE COMPANY",
+                "mailing_address_line1": "1506  FERGUSON LN STE 102",
+                "mailing_address_city_state_zip": "AUSTIN TX 78754",
+                "mailing_address_county": "TRAVIS",
+                "owner_telephone": "5124426782",
+                "license_subtype": "EC",
+                "continuing_education_flag": "N",
+                "business_mailing": {
+                  "type": "Point",
+                  "coordinates": [
+                    -97.74299,
+                    30.26759
+                  ]
+                }
+              },
+              "evidence_url": "https://data.texas.gov/resource/7358-krk7.json?%24q=Fox+Service+Company&%24limit=1000",
+              "source_reference": "TDLR All Licenses Socrata dataset 7358-krk7",
+              "fetched_at": "2026-09-28T18:56:28.124628Z"
+            },
+            "accepted": true,
+            "match_confidence": "medium",
+            "name_relationship": "exact_normalized",
+            "matched_identity_field": "business_name",
+            "matched_identity_value": "Fox Service Company",
+            "matched_candidate_field": "holder_name",
+            "matched_candidate_role": "business",
+            "supporting_evidence": [
+              "exact_address",
+              "observed_address_state_consistent",
+              "trade_category_consistent"
+            ],
+            "conflicts": [
+              "candidate_phone_conflicts_with_day1_phone"
+            ],
+            "notes": [
+              "An exact normalized business name and exact official address provide stronger corroboration despite a different board contact phone (Day 1: +15124881120; board: +15124426782)."
+            ]
+          }
+        ],
+        "accepted_licenses": [
+          {
+            "board_id": "TDLR",
+            "board_name": "Texas Department of Licensing and Regulation",
+            "source_strategy": "tdlr_all_licenses_open_data",
+            "license_number": "33423",
+            "holder_name": "FOX SERVICE COMPANY",
+            "holder_name_role": "business",
+            "raw_license_type": "Electrical Contractor",
+            "raw_classification": "EC",
+            "raw_license_status": null,
+            "issued_date": null,
+            "expiration_date": "03/13/2027",
+            "address": "4300 SOUTH CONGRESS AVENUE, AUSTIN TX 78745",
+            "state": "TX",
+            "phone": "5124426782",
+            "source_fields": {
+              "license_type": "Electrical Contractor",
+              "license_number": "33423",
+              "business_county": "TRAVIS",
+              "business_name": "FOX SERVICE COMPANY",
+              "business_address_line1": "4300 SOUTH CONGRESS AVENUE",
+              "business_city_state_zip": "AUSTIN TX 78745",
+              "business_telephone": "5124426782",
+              "license_expiration_date_mmddccyy": "03/13/2027",
+              "owner_name": "FOX SERVICE COMPANY",
+              "mailing_address_line1": "1506  FERGUSON LN STE 102",
+              "mailing_address_city_state_zip": "AUSTIN TX 78754",
+              "mailing_address_county": "TRAVIS",
+              "owner_telephone": "5124426782",
+              "license_subtype": "EC",
+              "continuing_education_flag": "N",
+              "business_mailing": {
+                "type": "Point",
+                "coordinates": [
+                  -97.74299,
+                  30.26759
+                ]
+              }
+            },
+            "evidence_url": "https://data.texas.gov/resource/7358-krk7.json?%24q=Fox+Service+Company&%24limit=1000",
+            "source_reference": "TDLR All Licenses Socrata dataset 7358-krk7",
+            "fetched_at": "2026-09-28T18:56:28.124628Z",
+            "normalized_status": null,
+            "match_confidence": "medium",
+            "matched_identity_field": "business_name",
+            "matched_identity_value": "Fox Service Company",
+            "matched_candidate_field": "holder_name",
+            "matched_candidate_role": "business",
+            "supporting_evidence": [
+              "exact_address",
+              "observed_address_state_consistent",
+              "trade_category_consistent"
+            ],
+            "match_notes": [
+              "An exact normalized business name and exact official address provide stronger corroboration despite a different board contact phone (Day 1: +15124881120; board: +15124426782)."
+            ]
+          }
+        ],
+        "notes": [
+          "Returned rows are candidates only; no identity match was accepted."
+        ]
+      },
+      {
+        "board_id": null,
+        "board_name": null,
+        "jurisdiction": "TX",
+        "strategy": null,
+        "search_status": "skipped",
+        "source_url": null,
+        "fetched_at": "2026-09-28T18:56:28.757828Z",
+        "match_decisions": [],
+        "accepted_licenses": [],
+        "notes": [
+          "boards.md does not define a Texas board mapping for this category."
+        ]
+      }
+    ],
+    "accepted_licenses": [
+      {
+        "board_id": "TDLR",
+        "board_name": "Texas Department of Licensing and Regulation",
+        "source_strategy": "tdlr_all_licenses_open_data",
+        "license_number": "33423",
+        "holder_name": "FOX SERVICE COMPANY",
+        "holder_name_role": "business",
+        "raw_license_type": "Electrical Contractor",
+        "raw_classification": "EC",
+        "raw_license_status": null,
+        "issued_date": null,
+        "expiration_date": "03/13/2027",
+        "address": "4300 SOUTH CONGRESS AVENUE, AUSTIN TX 78745",
+        "state": "TX",
+        "phone": "5124426782",
+        "source_fields": {
+          "license_type": "Electrical Contractor",
+          "license_number": "33423",
+          "business_county": "TRAVIS",
+          "business_name": "FOX SERVICE COMPANY",
+          "business_address_line1": "4300 SOUTH CONGRESS AVENUE",
+          "business_city_state_zip": "AUSTIN TX 78745",
+          "business_telephone": "5124426782",
+          "license_expiration_date_mmddccyy": "03/13/2027",
+          "owner_name": "FOX SERVICE COMPANY",
+          "mailing_address_line1": "1506  FERGUSON LN STE 102",
+          "mailing_address_city_state_zip": "AUSTIN TX 78754",
+          "mailing_address_county": "TRAVIS",
+          "owner_telephone": "5124426782",
+          "license_subtype": "EC",
+          "continuing_education_flag": "N",
+          "business_mailing": {
+            "type": "Point",
+            "coordinates": [
+              -97.74299,
+              30.26759
+            ]
+          }
+        },
+        "evidence_url": "https://data.texas.gov/resource/7358-krk7.json?%24q=Fox+Service+Company&%24limit=1000",
+        "source_reference": "TDLR All Licenses Socrata dataset 7358-krk7",
+        "fetched_at": "2026-09-28T18:56:28.124628Z",
+        "normalized_status": null,
+        "match_confidence": "medium",
+        "matched_identity_field": "business_name",
+        "matched_identity_value": "Fox Service Company",
+        "matched_candidate_field": "holder_name",
+        "matched_candidate_role": "business",
+        "supporting_evidence": [
+          "exact_address",
+          "observed_address_state_consistent",
+          "trade_category_consistent"
+        ],
+        "match_notes": [
+          "An exact normalized business name and exact official address provide stronger corroboration despite a different board contact phone (Day 1: +15124881120; board: +15124426782)."
+        ]
+      }
+    ],
+    "notes": [
+      "Board search status describes source access; it does not describe license standing or identity-match confidence.",
+      "One or more relevant searches were incomplete or intentionally skipped."
+    ]
+  },
+  "cache": {
+    "status": "miss_not_saved",
+    "last_good_preserved": false
+  },
+  "notes": []
+}

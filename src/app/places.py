@@ -44,8 +44,15 @@ class GooglePlacesClient:
         self._client = http_client or httpx.Client(timeout=timeout_seconds)
 
     def search_by_phone(self, normalized_phone: str) -> list[str]:
+        place_ids = self._search_text(normalized_phone)
+        if not place_ids:
+            spaced_phone = f"{normalized_phone[:2]} {normalized_phone[2:]}"
+            place_ids.extend(self._search_text(spaced_phone))
+        return list(dict.fromkeys(place_ids))
+
+    def _search_text(self, phone_query: str) -> list[str]:
         payload = {
-            "textQuery": normalized_phone,
+            "textQuery": phone_query,
             "regionCode": "US",
             "languageCode": "en",
             "includePureServiceAreaBusinesses": True,

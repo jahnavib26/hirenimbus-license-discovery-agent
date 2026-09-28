@@ -1,0 +1,64 @@
+{
+  "note": "Evaluation-only manual ground truth supplied by the user. Production code must not consume this file.",
+  "identities": {
+    "P01": {"business_name": "F.H. Furr"},
+    "P02": {"business_name": "John C. Flood"},
+    "P03": {"business_name": "Brownlee Plumbing LLC"},
+    "P04": {"business_name": "PowerWorks LLC"},
+    "P05": {"business_name": "JM Plumbing & Heating"},
+    "P08": {"business_name": "Abacus Plumbing, Air Conditioning & Electrical"},
+    "P09": {"business_name": "Fox Service Company"},
+    "P11": {"business_name": "Mr. Rooter Plumbing of Austin"},
+    "P12": {"business_name": "Cabrillo Plumbing, Heating & Air"},
+    "P13": {"business_name": "Cabrillo Plumbing, Heating & Air"},
+    "P14": {"business_name": "TRIO Heating, Air & Plumbing"},
+    "P15": {"business_name": "Prime Plumbing and Drain, Inc."},
+    "P16": {
+      "business_name": "Roto-Rooter San Francisco",
+      "verified_aliases": [
+        {
+          "business_name": "Roto-Rooter Plumbing & Water Cleanup",
+          "evidence_url": "https://www.rotorooter.com/sanfrancisco/",
+          "verification_basis": "The first-party San Francisco location page uses this business description alongside the exact input phone and 2873 Mission Street location address."
+        }
+      ]
+    },
+    "P28": {"business_name": "Abacus Plumbing, Air Conditioning & Electrical"}
+  },
+  "unknown_identity_cases": {
+    "P06": "The prior label had no independent verification evidence in this evaluation input.",
+    "P07": "The prior label had no independent verification evidence in this evaluation input.",
+    "P10": "Manual identity ground truth was explicitly left unknown."
+  },
+  "verified_licenses": [
+    {
+      "case_id": "P03",
+      "board_id": "DPOR",
+      "board_name": "Virginia Department of Professional and Occupational Regulation",
+      "license_number": "2710061674",
+      "holder_name": "JOTIS LAMAR BROWNLEE",
+      "license_type": "Tradesman",
+      "specialty": "Master Plumber (MPLB)",
+      "expiration_date": "2025-09-30",
+      "raw_license_status": null,
+      "raw_license_status_note": "Unknown/not displayed in the manual official evidence."
+    },
+    {
+      "case_id": "P04",
+      "board_id": "MD_ELECTRICIANS",
+      "board_name": "Maryland State Board of Electricians",
+      "license_number": "14003",
+      "holder_name": "BELVIN DOUGLAS MITCHELL",
+      "license_type": "STATEWIDE MASTER ELECTRICIAN",
+      "raw_license_status": "INSURED",
+      "normalized_status": "active",
+      "expiration_date": "2026-12-19"
+    },
+    {"case_id": "P08", "board_id": "TSBPE", "license_number": "20628"},
+    {"case_id": "P08", "board_id": "TDLR", "license_number": "30557"},
+    {"case_id": "P08", "board_id": "TDLR", "license_number": "TACLA00135747C"},
+    {"case_id": "P09", "board_id": "TDLR", "license_number": "33423"},
+    {"case_id": "P09", "board_id": "TDLR", "license_number": "TACLB00112806E"},
+    {"case_id": "P11", "board_id": "TSBPE", "license_number": "45226"}
+  ]
+}

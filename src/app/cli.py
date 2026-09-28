@@ -15,6 +15,7 @@ from app.models import IdentityLookupResult, LookupError
 from app.phone import InvalidPhoneNumber, parse_us_phone
 from app.places import GooglePlacesClient
 from app.resolver import IdentityResolver
+from app.website import FirstPartyWebsiteClient
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -60,7 +61,11 @@ def run(argv: Sequence[str] | None = None) -> int:
     category_mapper = (
         CategoryMapper.from_json(taxonomy_path) if taxonomy_path.exists() else CategoryMapper()
     )
-    result = IdentityResolver(GooglePlacesClient(api_key), category_mapper).resolve(args.phone)
+    result = IdentityResolver(
+        GooglePlacesClient(api_key),
+        category_mapper,
+        website_client=FirstPartyWebsiteClient(),
+    ).resolve(args.phone)
     print(result.model_dump_json(indent=2))
     if result.error:
         return 2 if result.error.kind == "invalid_input" else 1

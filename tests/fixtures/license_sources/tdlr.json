@@ -1,0 +1,23 @@
+[
+  {
+    "license_type": "Electrical Contractor",
+    "license_number": "EC-100",
+    "business_name": "Example Electric LLC",
+    "business_address_line1": "1 Main Street",
+    "business_city_state_zip": "Austin TX 78701",
+    "business_telephone": "5125550100",
+    "license_expiration_date_mmddccyy": "03/31/2027",
+    "owner_name": "Ada Owner",
+    "license_subtype": "EC",
+    "continuing_education_flag": "N"
+  },
+  {
+    "license_type": "A/C Contractor",
+    "license_number": "AC-200",
+    "business_name": "Example Electric LLC",
+    "business_city_state_zip": "Austin TX 78701",
+    "license_expiration_date_mmddccyy": "08/15/2026",
+    "license_subtype": "ACR",
+    "continuing_education_flag": "N"
+  }
+]

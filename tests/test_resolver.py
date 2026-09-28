@@ -8,6 +8,7 @@ from app.categories import CategoryMapper
 from app.models import PlaceDetails
 from app.places import PlacesLookupError
 from app.resolver import IdentityResolver
+from app.website import ObservedWebsitePhone, WebsiteFetchError, WebsitePage
 
 
 @dataclass
@@ -27,6 +28,19 @@ class FakePlacesClient:
     def get_place_details(self, place_id: str) -> PlaceDetails:
         self.detail_calls.append(place_id)
         return self.details[place_id]
+
+
+@dataclass
+class FakeWebsiteClient:
+    pages: dict[str, WebsitePage] = field(default_factory=dict)
+    failures: set[str] = field(default_factory=set)
+    calls: list[str] = field(default_factory=list)
+
+    def fetch(self, url: str) -> WebsitePage:
+        self.calls.append(url)
+        if url in self.failures:
+            raise WebsiteFetchError("website unavailable")
+        return self.pages[url]
 
 
 def place(place_id: str = "place-1", **overrides: object) -> PlaceDetails:
@@ -58,6 +72,23 @@ def resolver_for(*places: PlaceDetails) -> tuple[IdentityResolver, FakePlacesCli
         details={item.place_id: item for item in places},
     )
     return IdentityResolver(client), client
+
+
+def website_page(
+    url: str,
+    *,
+    text: str,
+    phone: str = "(512) 555-1234",
+    final_url: str | None = None,
+) -> WebsitePage:
+    return WebsitePage(
+        requested_url=url,
+        final_url=final_url or url,
+        visible_text=text,
+        phones=(
+            ObservedWebsitePhone(raw=phone, normalized="+15125551234"),
+        ),
+    )
 
 
 def test_invalid_input_never_calls_external_lookup() -> None:
@@ -92,6 +123,220 @@ def test_exact_returned_phone_is_required() -> None:
     assert result.confidence == "low"
     assert result.identity is None
     assert result.assessments[0].phone_verification == "mismatch"
+
+
+def test_exact_website_phone_name_and_full_address_corroborate_candidate() -> None:
+    candidate = place(international_phone_number="+1 737-555-1200")
+    places = FakePlacesClient(
+        candidate_ids=[candidate.place_id],
+        details={candidate.place_id: candidate},
+    )
+    websites = FakeWebsiteClient(
+        pages={
+            "https://example.test": website_page(
+                "https://example.test",
+                text=(
+                    "Example Plumbing. Call (512) 555-1234. "
+                    "1 Main Street, Austin, TX 78701."
+                ),
+            )
+        }
+    )
+
+    result = IdentityResolver(places, website_client=websites).resolve(
+        "512-555-1234"
+    )
+
+    assert result.found is True
+    assert result.confidence == "medium"
+    assert result.identity and result.identity.place_id == "place-1"
+    assert result.assessments[0].phone_verification == "mismatch"
+    assert result.assessments[0].conflicts == [
+        "The phone returned by Google Places normalizes to a different number than the input."
+    ]
+    assert [item.source for item in result.evidence] == [
+        "google_places_details",
+        "official_business_website",
+    ]
+    website_evidence = result.evidence[1]
+    assert website_evidence.url == "https://example.test"
+    assert website_evidence.observed["website_phone"] == "(512) 555-1234"
+    assert website_evidence.observed["website_phone_normalized"] == "+15125551234"
+    assert website_evidence.observed["places_returned_phones"] == [
+        "+1 737-555-1200"
+    ]
+    assert website_evidence.observed["places_phone_verification"] == "mismatch"
+    assert any("overcame" in note for note in result.notes)
+    assert any("mismatch remains visible" in note for note in result.notes)
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Call (512) 555-1234 for service.",
+        "Example Plumbing. Call (512) 555-1234. 9 Other Road, Austin, TX 78702.",
+        "Different Plumbing. Call (512) 555-1234. 1 Main St, Austin, TX 78701.",
+    ],
+    ids=["phone-only", "phone-name-wrong-address", "phone-address-wrong-name"],
+)
+def test_incomplete_website_corroboration_is_rejected(text: str) -> None:
+    candidate = place(international_phone_number="+1 737-555-1200")
+    places = FakePlacesClient(
+        candidate_ids=[candidate.place_id],
+        details={candidate.place_id: candidate},
+    )
+    websites = FakeWebsiteClient(
+        pages={
+            "https://example.test": website_page(
+                "https://example.test", text=text
+            )
+        }
+    )
+
+    result = IdentityResolver(places, website_client=websites).resolve(
+        "512-555-1234"
+    )
+
+    assert result.found is False
+    assert result.confidence == "low"
+    assert result.identity is None
+
+
+def test_multiple_website_corroborated_candidates_remain_ambiguous() -> None:
+    first = place(
+        "place-1",
+        international_phone_number="+1 737-555-1200",
+        website_uri="https://first.example.test",
+    )
+    second = place(
+        "place-2",
+        international_phone_number="+1 737-555-1201",
+        website_uri="https://second.example.test",
+    )
+    places = FakePlacesClient(
+        candidate_ids=[first.place_id, second.place_id],
+        details={first.place_id: first, second.place_id: second},
+    )
+    text = "Example Plumbing (512) 555-1234 1 Main Street Austin TX 78701"
+    websites = FakeWebsiteClient(
+        pages={
+            first.website_uri: website_page(first.website_uri, text=text),
+            second.website_uri: website_page(second.website_uri, text=text),
+        }
+    )
+
+    result = IdentityResolver(places, website_client=websites).resolve(
+        "512-555-1234"
+    )
+
+    assert result.found is False
+    assert result.identity is None
+    assert any("ambiguous" in note for note in result.notes)
+
+
+def test_third_party_website_is_not_accepted() -> None:
+    candidate = place(
+        international_phone_number="+1 737-555-1200",
+        website_uri="https://www.facebook.com/example-plumbing",
+    )
+    places = FakePlacesClient(
+        candidate_ids=[candidate.place_id],
+        details={candidate.place_id: candidate},
+    )
+    websites = FakeWebsiteClient(
+        pages={
+            candidate.website_uri: website_page(
+                candidate.website_uri,
+                text="Example Plumbing (512) 555-1234 1 Main St Austin TX 78701",
+            )
+        }
+    )
+
+    result = IdentityResolver(places, website_client=websites).resolve(
+        "512-555-1234"
+    )
+
+    assert result.found is False
+    assert any("not accepted as first-party" in note for note in result.notes)
+
+
+def test_website_fetch_failure_keeps_existing_conservative_result() -> None:
+    candidate = place(international_phone_number="+1 737-555-1200")
+    places = FakePlacesClient(
+        candidate_ids=[candidate.place_id],
+        details={candidate.place_id: candidate},
+    )
+    websites = FakeWebsiteClient(failures={candidate.website_uri})
+
+    result = IdentityResolver(places, website_client=websites).resolve(
+        "512-555-1234"
+    )
+
+    assert result.found is False
+    assert result.error is None
+    assert result.assessments[0].phone_verification == "mismatch"
+    assert any("conservative Places result" in note for note in result.notes)
+
+
+def test_one_qualifying_site_does_not_override_another_candidate_fetch_failure() -> None:
+    qualifying = place(
+        "qualifying",
+        international_phone_number="+1 737-555-1200",
+        website_uri="https://qualifying.example.test",
+    )
+    unavailable = place(
+        "unavailable",
+        display_name="Other Plumbing",
+        international_phone_number="+1 737-555-1201",
+        website_uri="https://unavailable.example.test",
+    )
+    places = FakePlacesClient(
+        candidate_ids=[qualifying.place_id, unavailable.place_id],
+        details={
+            qualifying.place_id: qualifying,
+            unavailable.place_id: unavailable,
+        },
+    )
+    websites = FakeWebsiteClient(
+        pages={
+            qualifying.website_uri: website_page(
+                qualifying.website_uri,
+                text="Example Plumbing (512) 555-1234 1 Main St Austin TX 78701",
+            )
+        },
+        failures={unavailable.website_uri},
+    )
+
+    result = IdentityResolver(places, website_client=websites).resolve(
+        "512-555-1234"
+    )
+
+    assert result.found is False
+    assert result.identity is None
+    assert any("conservative Places result" in note for note in result.notes)
+
+
+def test_exact_places_phone_match_does_not_invoke_website_fallback() -> None:
+    matching = place("matching")
+    mismatch = place(
+        "mismatch",
+        display_name="Nearby Plumbing",
+        international_phone_number="+1 737-555-1200",
+        website_uri="https://nearby.example.test",
+    )
+    places = FakePlacesClient(
+        candidate_ids=[matching.place_id, mismatch.place_id],
+        details={matching.place_id: matching, mismatch.place_id: mismatch},
+    )
+    websites = FakeWebsiteClient(failures={mismatch.website_uri})
+
+    result = IdentityResolver(places, website_client=websites).resolve(
+        "512-555-1234"
+    )
+
+    assert result.found is True
+    assert result.identity and result.identity.place_id == "matching"
+    assert websites.calls == []
 
 
 def test_national_returned_phone_can_match_exactly() -> None:
