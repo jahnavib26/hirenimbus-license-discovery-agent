@@ -141,7 +141,7 @@ Official bulk downloads and open data are preferred where available.
 
 CAPTCHAs, Cloudflare/WAF challenges, and other access protections are never bypassed.
 
-Each accepted license preserves the board, license number, type/class, holder name, raw and normalized status, available dates, match confidence, evidence URL, and `fetched_at`. Missing values remain `null` rather than being inferred.
+Each accepted license preserves the board, license number, type/class, holder name, raw and normalized status, dates when available, match confidence, evidence URL, and `fetched_at`. Missing values remain `null` rather than being inferred.
 
 ### Matching
 
