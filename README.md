@@ -91,7 +91,7 @@ flowchart TD
     H -->|Blocked / Unreachable| K[Partial Result with search_status]
     K --> J
 
-    J --> L[Cache / Keep Last Good]
+    J --> L[Cache / Preserve Last Successful Result]
 ```
 
 ## Identity resolution
@@ -141,6 +141,8 @@ Official bulk downloads and open data are preferred where available.
 
 CAPTCHAs, Cloudflare/WAF challenges, and other access protections are never bypassed.
 
+Each accepted license preserves the board, license number, type/class, holder name, raw and normalized status, available dates, match confidence, evidence URL, and `fetched_at`. Missing values remain `null` rather than being inferred.
+
 ### Matching
 
 A board result is first treated as a license candidate, not automatically as a license belonging to the business.
@@ -182,9 +184,9 @@ The full pipeline cache is keyed by normalized phone number, so formatting varia
 
 Complete results may be cached.
 
-A partial or failed refresh does not overwrite a previous good result.
+A partial or failed refresh does not overwrite a previous successful result.
 
-`refresh=True` always performs a fresh attempt while preserving the previous last-good cached result if the new run is incomplete.
+`refresh=True` always performs a fresh attempt while preserving the previous successful cached result if the new run is incomplete.
 
 Board-source requests also use light in-process caching and polite request spacing.
 
@@ -256,20 +258,22 @@ I would focus on:
 
 ## AI assistance
 
-AI coding assistants were used for implementation support, test generation, debugging, and design/audit suggestions.
+AI coding assistants were used for implementation support, test generation, and debugging.
 
-I made the final decisions around:
+I designed the overall approach and made the final engineering decisions, including:
 
-- conservative identity verification;
-- exact-phone-first matching;
+- the phone → identity → license pipeline;
+- conservative identity verification and exact-phone-first matching;
 - first-party website verification;
-- evidence thresholds;
-- board routing;
-- license acceptance rules;
-- preserving source conflicts;
-- caching behavior;
-- evaluation methodology; and
-- rejecting suggestions that required unsupported inference or weaker provenance.
+- evidence and confidence thresholds;
+- board routing and source selection;
+- license matching and acceptance rules;
+- conflict and failure handling;
+- caching and preservation of the last successful result;
+- evaluation methodology and metrics; and
+- the final review of the implementation against the take-home requirements.
+
+I also rejected approaches that relied on unsupported inference, weaker provenance, or unsafe assumptions.
 
 Manual evaluation findings remain separate from production behavior. No case-specific evaluation labels, manually verified aliases, or known license numbers are hardcoded into runtime matching.
 
