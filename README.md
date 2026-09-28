@@ -1,24 +1,23 @@
 # HireNimbus License Discovery Agent
 
-This project turns a messy U.S. business phone number into an evidence-backed,
-structured result containing a resolved business identity when supported,
-relevant contractor and trade-license searches, provenance, confidence, board
-search statuses, conflicts, and explicit incomplete-result handling.
+This project takes a messy U.S. business phone number and returns an evidence-backed business identity and relevant contractor or trade-license information.
 
-In a marketplace recommendation workflow, attaching the wrong identity or
-license is worse than returning an incomplete result. The pipeline therefore
-favors strong evidence over guessing.
+The main design principle is simple: in a marketplace recommendation workflow, attaching the wrong identity or license is worse than returning an incomplete result. The pipeline therefore favors strong evidence over guessing.
 
-The goal is trustworthy phone -> identity -> license discovery, not guaranteed
-discovery for every input. Missing values remain `null`, candidates are not
-automatically treated as licenses, and an unreachable board remains visibly
-different from a successful search that returned no candidate rows.
+## At a glance
+
+| | |
+|---|---|
+| Input | U.S. business phone number |
+| Output | Business identity + relevant license results + evidence |
+| Identity sources | Google Places + first-party website verification |
+| License sources | Official state licensing boards / open data |
+| Interfaces | `lookup_identity` CLI + `find_licenses(phone)` |
+| Tests | 177 passing |
 
 ## Setup
 
-Python 3.12 or newer is required. Runtime dependencies are `httpx`,
-`phonenumbers`, `pydantic`, and `python-dotenv`; the development extra installs
-`pytest`.
+Python 3.12+ is required.
 
 ```bash
 python3.12 -m venv .venv
@@ -27,43 +26,31 @@ python -m pip install -e '.[dev]'
 cp .env.example .env
 ```
 
-Enable **Places API (New)** for the Google Cloud project associated with the
-key, then edit `.env` without committing the real value:
+Enable **Places API (New)** in Google Cloud and add your key to `.env`:
 
 ```dotenv
 GOOGLE_PLACES_API_KEY=replace-with-a-restricted-google-places-api-key
 ```
 
-The application loads `.env` from the current working directory without
-overriding an already exported variable. `.env` and the runtime `.cache`
-directory are ignored by Git. `GOOGLE_PLACES_API_KEY` is required for live
-identity discovery. `HIRENIMBUS_CACHE_PATH` is optional and overrides the
-default `.cache/license_results.json` Day 3 cache path.
+`.env` and runtime cache files are ignored by Git.
 
-## Day 1 CLI
-
-The installed CLI accepts a phone in any supported U.S. representation:
+An optional `HIRENIMBUS_CACHE_PATH` can be used to override the default cache location:
 
 ```text
-lookup_identity <phone>
+.cache/license_results.json
 ```
 
-For example:
+## Usage
+
+### Identity lookup
 
 ```bash
 lookup_identity "(512) 943-7070"
 ```
 
-It writes an `IdentityLookupResult` JSON document containing `found`,
-qualitative `confidence`, normalized `input_phone`, `identity`, source
-`evidence`, candidate `assessments`, `notes`, and `error`. Exit codes are `0`
-for a completed lookup, including a legitimate no-result; `1` for
-configuration/provider failure; and `2` for invalid input.
+The CLI returns JSON containing the normalized phone, resolved identity when supported, confidence, evidence, candidate assessments, notes, and errors.
 
-## Day 3 tool interface
-
-`find_licenses` is the thin tool-style public interface for the complete phone
--> identity -> license pipeline:
+### Full license pipeline
 
 ```python
 from app import find_licenses
@@ -72,276 +59,232 @@ result = find_licenses("(512) 943-7070")
 print(result.model_dump_json(indent=2))
 ```
 
-Pass `refresh=True` to force a new provider and board attempt:
+To force a fresh provider and board search:
 
 ```python
 result = find_licenses("(512) 943-7070", refresh=True)
 ```
 
-This repository does not expose an HTTP server or a full MCP server. The Python
-function is the brief's simple tool-style interface and returns a typed
-`PipelineResult` that can be serialized directly to JSON.
+`find_licenses` is the thin tool-style interface for the full pipeline. This project does not include a separate HTTP or full MCP server.
 
-## Architecture and flow
+## Architecture
 
 ```mermaid
 flowchart TD
     A[Phone Input] --> B[Normalize + Validate]
     B -->|Invalid| X[Validation Error]
     B -->|Valid| C[Google Places]
+
     C --> D{Exact Phone Match?}
 
     D -->|Yes| E[Resolved Identity]
-    D -->|No| F[Bounded First-Party<br/>Website Corroboration]
-    F -->|Corroborated| E
-    F -->|Not Corroborated| Y[Unresolved Identity]
+    D -->|No| F[First-Party Website Verification]
+
+    F -->|Verified| E
+    F -->|Not Verified| Y[Unresolved Identity]
 
     E --> G[Select Relevant Licensing Boards]
     G --> H[Search Official Sources]
     H --> I[Normalize + Match License Candidates]
-    I --> J[Evidence-Backed PipelineResult JSON]
+    I --> J[Evidence-Backed PipelineResult]
 
-    H -->|Blocked / Unreachable| K[Partial Result with explicit<br/>search_status, not unlicensed]
+    H -->|Blocked / Unreachable| K[Partial Result with search_status]
     K --> J
+
     J --> L[Cache / Keep Last Good]
 ```
 
-The stages deliberately preserve the distinction between observed provider
-facts, matching inferences, accepted claims, conflicts, and source failures.
+## Identity resolution
 
-## Day 1 design decisions
+Phone numbers are parsed as U.S. numbers, validated, and normalized to E.164 (`+1XXXXXXXXXX`). Invalid or implausible numbers are rejected before external provider calls.
 
-- Phones are parsed as U.S. numbers and normalized to E.164
-  (`+1XXXXXXXXXX`). Extensions are preserved separately. Invalid, implausible,
-  and supplied reserved `555-01xx` controls are rejected before provider calls.
-- Places API (New) Text Search first receives the compact E.164 phone. Only
-  when that request returns zero candidate Place IDs does the client retry once
-  with a spaced country code, such as `+1 7034779016`. Place IDs are
-  deduplicated before Place Details retrieval.
-- Place Details is the primary Google verification signal. A single
-  candidate whose returned phone normalizes exactly to the input is preferred.
-  Search order is never treated as identity proof; multiple exact candidates
-  or conflicting returned phones remain unresolved.
-- The Google display name is stored as `business_name`, not promoted to
-  `legal_name` or `dba`. Raw Google types remain available alongside
-  conservatively normalized trade categories.
-- Closed, moved, and pure service-area listings retain those facts. Hidden
-  service-area addresses remain missing rather than being inferred.
+Google Places API (New) is the primary identity source:
 
-### Bounded first-party website corroboration
+1. Search using compact E.164 format.
+2. If that returns zero candidates, retry once using a spaced country-code format such as `+1 7034779016`.
+3. Retrieve Place Details.
+4. Prefer a candidate whose returned phone exactly matches the normalized input.
 
-Website corroboration is considered only when Places returned one or more
-candidates but none passed exact Places-phone verification. For each eligible
-candidate, the resolver may fetch only the `websiteUri` returned by Place
-Details; it does not search the web or crawl linked pages.
+The Google display name is stored as the public business name. It is not automatically treated as a legal name, DBA, or owner name.
 
-A website candidate qualifies only when the single bounded first-party page
-contains all three of the following:
+### First-party website verification
 
-1. the exact normalized input phone;
-2. the same normalized Places business identity; and
-3. the exact normalized full Places street address.
+Sometimes Google Places returns the correct business but lists a different location, office, or tracking phone.
 
-Exactly one Places candidate must satisfy the complete rule. An accepted
-website-correlated identity remains `medium` confidence. The original phone
-returned by Places, its mismatch assessment, the website phone, Google
-Maps/Places evidence, and the first-party evidence URL remain visible.
+In that case, the system may verify the candidate using only the first-party website returned by Google Places.
 
-Website retrieval accepts only public HTTP(S), blocks known third-party
-directory/social domains and non-public network destinations, bounds timeout,
-response size, and redirect count, and rejects cross-first-party redirects and
-HTTPS downgrades. Fetch failure preserves the conservative unresolved result
-rather than failing the whole pipeline.
+The candidate is accepted only when the page contains:
 
-There is no generic web crawler, third-party directory fallback, general web
-search, or state-corporation-registry integration.
+- the exact input phone;
+- the same business identity; and
+- the exact full Places address.
 
-## Day 2 design decisions
+Exactly one candidate must satisfy the rule.
 
-Board selection uses only the resolved identity's observed state and normalized
-trade categories. An observed jurisdiction makes a source relevant to search;
-it is not evidence that a license exists.
+These matches remain `medium` confidence, and the original Places phone mismatch stays visible in the result.
 
-Coverage follows `data/boards.md` where an official source is safely
-accessible:
+The system does not perform general web search, crawl websites, or accept third-party directories as identity evidence.
 
-- Texas plumbing routes to TSBPE; Texas electrical/HVAC routes to TDLR.
-- Virginia routes to DPOR's 2705 contractor and 2710 tradesman lists.
-- California routes to the CSLB License Master download flow.
-- Maryland electrical and MHIC mappings are represented, but unsafe,
-  inaccessible, or CAPTCHA-dependent query paths are skipped or reported rather
-  than bypassed.
-- District of Columbia remains an explicit ambiguous/skipped result because
-  the supplied guidance does not establish a safe category-specific adapter.
+## License discovery
 
-Official bulk downloads and open data are preferred to brittle HTML scraping.
-CAPTCHAs, Cloudflare/WAF challenges, and other bot protections are never
-bypassed.
+After resolving the business identity, the system selects boards using the observed state and trade categories.
 
-Generated search keys retain provenance from established `legal_name`, `dba`,
-`business_name`, and `owner_principal` fields. Name comparison normalizes case,
-punctuation, whitespace, and common legal suffixes. Partial and fuzzy
-relationships are retained in auditable decisions but are not accepted on that
-evidence alone. Person/owner matches require exact phone or address
-corroboration.
+Board routing is implemented for the supplied Texas, Virginia, California, Maryland, and DC sources where safe automated access is available.
 
-Every returned board row first becomes a `CandidateLicenseRecord`; it is not an
-accepted license until the separate identity-matching policy succeeds. The
-narrow phone-conflict override applies only when an established business name
-matches exactly and at least one official business or mailing address exactly
-matches the full Day 1 address. The different board contact phone remains in
-the candidate, conflict list, and explanatory match notes.
+- Texas — TDLR and TSBPE
+- Virginia — DPOR
+- California — CSLB
+- Maryland — available MHIC / electrical mappings
+- District of Columbia — represented conservatively where the supplied source guidance is ambiguous
 
-Active and inactive records are both eligible for matching when the official
-source exposes them. The raw status string is preserved alongside a normalized
-`active` or `inactive` value when an explicit status can be mapped. Missing or
-unknown standing remains `null`; expiration dates are never used to invent a
-status.
+Official bulk downloads and open data are preferred where available.
+
+CAPTCHAs, Cloudflare/WAF challenges, and other access protections are never bypassed.
+
+### Matching
+
+A board result is first treated as a license candidate, not automatically as a license belonging to the business.
+
+Matching considers:
+
+- business name
+- legal name / DBA when known
+- owner or principal when known
+- phone
+- address
+- trade/category consistency
+
+Names are normalized for case, punctuation, whitespace, and common legal suffixes.
+
+Fuzzy or partial name similarity alone is not enough to accept a license. A conflicting board phone can only be overridden when the business name and a full official address both match exactly. The phone conflict still remains visible in the result.
+
+Active and inactive records are both eligible when the official source exposes them. Raw board status is preserved alongside normalized status.
 
 ## Board search statuses
 
-Every selected or skipped board produces one of these statuses:
+Every selected board produces one of these outcomes:
 
 | Status | Meaning |
-| --- | --- |
-| `ok` | The official source was reached and returned candidate rows. Candidates may still fail identity matching. |
-| `not_found` | The source was reached successfully but returned no candidate rows for the generated search keys. |
-| `unreachable` | HTTP, download, schema, decoding, or parsing behavior prevented a trustworthy search. |
-| `captcha_blocked` | The official source required human CAPTCHA interaction, so automation stopped. |
-| `skipped` | No safe adapter or sufficiently specific board mapping was available. |
+|---|---|
+| `ok` | Source was reached and returned candidate rows |
+| `not_found` | Source was reached but returned no candidates for the search |
+| `unreachable` | HTTP, download, parsing, or schema failure prevented a reliable search |
+| `captcha_blocked` | Human CAPTCHA interaction was required |
+| `skipped` | No safe or sufficiently specific automated source was available |
 
-`not_found` never means "this business is unlicensed." It means only that the
-particular reachable source and query produced no candidate rows. Name forms,
-owner-held licenses, different boards, source coverage, and licensing
-exemptions can all produce an honest no-result.
+`not_found` does **not** mean the business is unlicensed.
 
-## Caching and idempotency
+It only means that the specific source and search produced no matching candidate rows.
 
-The durable Day 3 cache is keyed by the normalized base phone, so formatting
-variants share one entry. Complete pipeline results may be cached; partial and
-failed results are not allowed to replace a previous last-good entry.
+## Caching
 
-A normal call returns the cached complete result when available and reports
-`cache.status="hit"` for that invocation. `refresh=True` always makes a fresh
-attempt. A complete refresh replaces the cached result. A partial or failed
-refresh returns the current attempt, explicitly reports that the prior
-last-good result was preserved, and leaves that cached value unchanged.
+The full pipeline cache is keyed by normalized phone number, so formatting variants share the same entry.
 
-Board-source access also uses a small process-local successful-result cache and
-polite request spacing. It is separate from the normalized-phone Day 3 cache.
+Complete results may be cached.
 
-## Evaluation methodology and results
+A partial or failed refresh does not overwrite a previous good result.
 
-`data/phones.csv` contains 28 rows. Twenty-two rows are valid phone inputs; once
-formatting variants are normalized and deduplicated, they represent 17 unique
-valid phones. The primary identity-coverage denominator is those 17 unique
-phones, so duplicate formatting rows do not inflate the result.
+`refresh=True` always performs a fresh attempt while preserving the previous last-good cached result if the new run is incomplete.
 
-Control rows P20-P25 are reported separately from the primary unique-phone
-metrics and all fail input validation: P20-P22 use the reserved fictional
-555-01xx range, while P23-P25 are otherwise invalid or implausible U.S.
-numbers. Manual ground truth is evaluation-only and is never read by production
-matching. Unknown identity ground truth is not automatically counted as
-incorrect. Accepted-license precision is judged only
-where sufficient official verification exists, and the recall denominator
-contains only manually verified relevant licenses.
+Board-source requests also use light in-process caching and polite request spacing.
 
-Evaluation results:
+## Evaluation
+
+The supplied `data/phones.csv` contains 28 rows. Of those, 22 contain valid phone inputs. After normalization and deduplication, those represent 17 unique valid phones.
+
+Manual verification is used only for evaluation and is never read by production matching.
+
+### Results
 
 | Metric | Result |
-| --- | --- |
-| Identity coverage | **10/17 unique valid phones (58.8%)** |
-| Identity accuracy | **8/8 judgeable identity predictions (100%)** |
+|---|---:|
+| Identity coverage | **10/17 (58.8%)** |
+| Identity accuracy | **8/8 judgeable predictions (100%)** |
 | License precision | **1/1 judgeable accepted licenses (100%)** |
 | License recall | **1/8 verified reference licenses (12.5%)** |
 
-License recall is limited mainly by inaccessible official sources, historical
-records missing from current bulk downloads, and business-to-license
-relationships that could not be proven from runtime evidence without making
-assumptions.
+License recall is limited mainly by inaccessible official sources, historical records missing from current bulk downloads, and business-to-license relationships that could not be proven from runtime evidence without making unsupported assumptions.
 
-Public Places and board data change over time. The checked-in evaluation report
-records the observed source behavior and timestamps for this run.
+Public Places and licensing-board data can change over time, so the checked-in evaluation report records the observed behavior and timestamps from the evaluation run.
 
 ## Example outputs
 
-The `examples/` directory contains three direct, unedited
-`PipelineResult.model_dump_json(indent=2)` serializations produced by the
-actual pipeline:
+Three direct pipeline outputs are checked into `examples/`:
 
-- `examples/p09_fox_service_company.json` - Fox Service Company identity was
-  resolved and TDLR `33423` was accepted. The overall result remains `partial`
-  because another relevant board was unreachable.
-- `examples/p16_roto_rooter_partial.json` - identity was resolved through the
-  bounded first-party website corroboration rule; the downstream CSLB search
-  was `unreachable`.
-- `examples/p23_invalid_phone.json` - demonstrates invalid-input rejection,
-  failure status, and the absence of board searches.
+- `examples/p09_fox_service_company.json`
+  - identity resolved
+  - TDLR license `33423` accepted
+  - overall result remains partial because another relevant board was unreachable
 
-The files retain nulls, evidence URLs, timestamps, conflicts, notes, cache
-metadata, and board `search_status` values. They were not hand-edited.
+- `examples/p16_roto_rooter_partial.json`
+  - identity resolved using first-party website verification
+  - downstream CSLB source was unreachable
 
-## Failure modes and trade-offs
+- `examples/p23_invalid_phone.json`
+  - demonstrates invalid-input handling
 
-The system prefers precision over speculative recall. Common limitations are:
+The examples are direct `PipelineResult.model_dump_json(indent=2)` outputs and were not manually edited.
 
-- **Alternate, tracking, or location-specific phones:** a public number may
-  differ from a Places or board contact number.
-- **Limited Places data:** some phones return no candidate, and service-area
-  businesses may not publish a street address.
-- **Different names and holders:** a board may use a DBA, legal name, parent
-  company, or individual owner's name instead of the public business name.
-- **Multi-location and multi-state businesses:** one listing may not establish
-  every location, jurisdiction, or corporate relationship.
-- **Board access and coverage:** outages, CAPTCHA/WAF restrictions, and
-  current-only datasets can leave a search incomplete.
-- **Source and licensing differences:** schemas and endpoints change, and
-  licensing requirements vary by trade and jurisdiction.
+## Trade-offs and limitations
+
+The system intentionally prefers precision over speculative recall.
+
+Current limitations include:
+
+- alternate, tracking, or location-specific business phone numbers;
+- phones that return no Google Places candidate;
+- service-area businesses with limited address information;
+- differences between public business names, DBAs, legal entities, and owner-held licenses;
+- multi-location or multi-state businesses;
+- CAPTCHA/WAF restrictions and board outages;
+- current-only official datasets that may omit historical licenses;
+- changing source schemas and licensing requirements.
 
 ## With more time
 
-The following are future work, not current capabilities:
+I would focus on:
 
-- broader first-party and state-registry identity discovery for phones with no
-  Places candidates;
-- stronger legal-name, DBA, parent-entity, and owner/principal resolution;
-- resilient access to additional official bulk datasets where legitimately
-  available, without bypassing access controls;
-- malformed-row-tolerant DPOR parsing with explicit incomplete-source
-  diagnostics;
-- canonical board-specific license-number formatting;
-- richer multi-state and multi-location relationship reasoning; and
-- a broader manually verified evaluation set.
+- broader first-party and state-registry identity discovery when Places returns no candidate;
+- stronger legal-name, DBA, parent-company, and owner resolution;
+- more resilient access to legitimate official bulk datasets;
+- malformed-row-tolerant DPOR parsing with better diagnostics;
+- canonical board-specific license formatting;
+- richer multi-location and multi-state reasoning;
+- a larger manually verified evaluation set.
 
-## AI assistance and human decisions
+## AI assistance
 
-AI coding assistants were used for implementation support, test generation,
-debugging, and design/audit suggestions. I reviewed the resulting behavior and
-made the final decisions on conservative identity verification, the
-exact-phone-first policy, bounded first-party website corroboration, evidence
-thresholds, board routing, license acceptance rules, conflict handling and
-preservation, caching semantics, evaluation methodology, and which suggested
-changes to reject because they weakened provenance or required unsupported
-inference.
+AI coding assistants were used for implementation support, test generation, debugging, and design/audit suggestions.
 
-Manual evaluation findings remain separate from production behavior. No
-case-specific evaluation labels, manually verified business aliases, or
-verified license numbers are hardcoded into runtime matching.
+I made the final decisions around:
+
+- conservative identity verification;
+- exact-phone-first matching;
+- first-party website verification;
+- evidence thresholds;
+- board routing;
+- license acceptance rules;
+- preserving source conflicts;
+- caching behavior;
+- evaluation methodology; and
+- rejecting suggestions that required unsupported inference or weaker provenance.
+
+Manual evaluation findings remain separate from production behavior. No case-specific evaluation labels, manually verified aliases, or known license numbers are hardcoded into runtime matching.
 
 ## Tests
 
-Run the complete suite with:
+Run the full suite with:
 
 ```bash
 pytest
 ```
 
-Current test result: **177 passed**.
+Current result:
 
-The suite includes unit and integration coverage for phone parsing, Places
-request behavior, website security bounds and corroboration, category mapping,
-board selection, search-key and name normalization, source adapters, candidate
-roles, license matching and conflict evidence, status mapping, pipeline/cache
-semantics, evaluation calculations, CLI behavior, and checked-in fixtures.
-Mocks and fixtures are used where appropriate; the 177 tests are not 177 live
-API calls, and the normal suite does not require live Google or board access.
+```text
+177 passed
+```
+
+The suite includes unit and integration tests for phone parsing, Google Places behavior, first-party website verification, board selection, source adapters, name normalization, license matching, status mapping, caching, pipeline behavior, evaluation calculations, and CLI behavior.
+
+Mocks and fixtures are used where appropriate; the 177 tests are not 177 live API calls.
