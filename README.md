@@ -32,7 +32,7 @@ flowchart LR
    exists.
 
 4. If a registry entity can be confidently linked to the business, add its
-   legal name, current DBA/trade names, and qualifying principals as additional
+   legal name, current DBA/trade names, and qualifying principals (such as owners or responsible individuals) as additional
    board-search names.
 
 5. Search the relevant official licensing boards.
@@ -171,7 +171,7 @@ supporting evidence.
 ## Evaluation
 
 The expanded evaluation covers all **17 unique valid phone cases** and uses a
-frozen set of **23 manually reviewed licenses**.
+fixed reference set of **23 manually reviewed licenses**.
 
 The original evaluation contained 8 licenses and remains preserved separately
 as the historical baseline.
