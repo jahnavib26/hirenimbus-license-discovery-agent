@@ -1,0 +1,24 @@
+{
+  "artifact_kind": "fixture_injected_deterministic_demonstration",
+  "disclaimer": "Fixture/injected demonstration; not a live registry success; not counted in evaluation.",
+  "source_test": "tests/test_va_integration.py::test_synthetic_va_registry_key_reaches_dpor_retrieval_and_final_matching",
+  "base_identity": {
+    "business_name": "Blue Ridge Home Services",
+    "address": "100 Main St, Richmond, VA 23219",
+    "place_id": "va-place-1"
+  },
+  "established_registry_entity": {
+    "registry": "Virginia SCC Clerk's Information System",
+    "entity_id": "SYNTH001",
+    "legal_name": "Blue Ridge Mechanical LLC",
+    "establishment_basis": "injected official-shaped entity detail with exact business address and fictitious-name relationship"
+  },
+  "resulting_search_keys": [
+    {"value": "Blue Ridge Home Services", "origin": "base_identity", "source_field": "business_name"},
+    {"value": "Blue Ridge Mechanical LLC", "origin": "registry", "source_field": "legal_name", "entity_id": "SYNTH001"},
+    {"value": "Blue Ridge Home Services", "origin": "registry", "source_field": "dba", "entity_id": "SYNTH001"},
+    {"value": "Ada Owner", "origin": "registry", "source_field": "owner_principal", "registry_role": "manager", "entity_id": "SYNTH001"}
+  ],
+  "board_request": {"board_id": "DPOR", "strategy": "dpor_regulant_lists"},
+  "final_decision": {"accepted": true, "license_number": "000777", "matched_identity_field": "legal_name", "matched_identity_value": "Blue Ridge Mechanical LLC"}
+}

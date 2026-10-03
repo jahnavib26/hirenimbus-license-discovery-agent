@@ -94,15 +94,36 @@ def test_supported_non_texas_sources_use_documented_strategies() -> None:
     ]
 
 
-def test_dc_arbitrary_category_remains_ambiguous_general_guidance() -> None:
+def test_dc_plumbing_selects_all_supported_industrial_trades() -> None:
+    result = select_boards(
+        identity(
+            states=["DC"],
+            categories=["plumbing", "cleaning"],
+        )
+    )
+
+    assert [(item.board_id, item.strategy) for item in result.selections] == [
+        ("DC_INDUSTRIAL_TRADES", "dc_opla_industrial_trades")
+    ]
+    assert result.selections[0].applicable_categories == [
+        "plumbing",
+        "electrical",
+        "hvac",
+    ]
+    assert len(result.issues) == 1
+    assert result.issues[0].kind == "unsupported"
+    assert result.issues[0].category == "cleaning"
+
+
+def test_dc_arbitrary_category_remains_explicitly_unsupported() -> None:
     result = select_boards(identity(states=["DC"], categories=["cleaning"]))
 
     assert result.selections == []
     assert len(result.issues) == 1
-    assert result.issues[0].kind == "ambiguous"
+    assert result.issues[0].kind == "unsupported"
     assert result.issues[0].jurisdiction == "DC"
     assert result.issues[0].category == "cleaning"
-    assert "general DLCP/BOSS guidance" in result.issues[0].reason
+    assert "does not cover" in result.issues[0].reason
 
 
 def test_dc_missing_category_remains_ambiguous() -> None:

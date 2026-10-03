@@ -1,0 +1,66 @@
+{
+  "example_kind": "dated_initial_phase2_live_audit_artifact",
+  "artifact_status": "Historical observation from the initial Phase 2 run; source behavior may differ from the current expanded benchmark.",
+  "not_counted_in_current_evaluation": true,
+  "input_phone": "+12027230676",
+  "base_identity": {
+    "business_name": "W. L. Gary Company, Inc.",
+    "address": "1140 3rd St NE Ste 406, Washington, DC 20002, USA",
+    "place_id": "ChIJI3WmYoPIt4kR3pkZsRxyM9M",
+    "states": ["DC"],
+    "normalized_categories": ["renovation", "plumbing"]
+  },
+  "registry": {
+    "source": "DC DLCP Open Data registries",
+    "source_url": "https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Business_Licensing_and_Grants_WebMercator/FeatureServer/0/query",
+    "fetched_at": "2026-10-01T22:41:59.839962Z",
+    "status": "not_found",
+    "established_entity_id": null,
+    "established_entity_name": null,
+    "entity_established": false,
+    "legal_names": [],
+    "dbas": [],
+    "principals": [],
+    "candidate_establishment_evidence": [],
+    "manual_official_source_evidence_used": false,
+    "notes": ["The official DC corporate and trade-name registries returned no linked entity candidate."]
+  },
+  "expanded_search_keys": [
+    {
+      "value": "W. L. Gary Company, Inc.",
+      "normalized_value": "w l gary company inc",
+      "semantic_role": "business_name",
+      "origin": "base_identity",
+      "registry": null,
+      "entity_id": null,
+      "source_url": null,
+      "registry_role": null
+    }
+  ],
+  "board_searches": [
+    {
+      "board": "District of Columbia Board of Industrial Trades",
+      "source_url": "https://govservices.dcra.dc.gov/oplaportal/Home/GetLicenseSearchDetails",
+      "fetched_at": "2026-10-01T22:42:01.339387Z",
+      "status": "not_found",
+      "retrieved_candidates": [],
+      "notes": ["The official source was reached but returned no candidate rows; this is not an unlicensed conclusion."]
+    },
+    {
+      "board": null,
+      "source_url": null,
+      "fetched_at": "2026-10-01T22:42:03.419029Z",
+      "status": "skipped",
+      "issue_kind": "unsupported",
+      "retrieved_candidates": [],
+      "notes": ["The narrow District of Columbia Industrial Trades route does not cover this normalized category."]
+    }
+  ],
+  "final_decision": {
+    "accepted_licenses": [],
+    "outcome": "no_candidate_accepted",
+    "pipeline_status": "partial",
+    "rationale": "The corporate and trade-name open-data query and the plumbing board path completed without candidates. The separate renovation category is unsupported, so the overall result remains partial.",
+    "provenance": "Direct live pipeline observation from an isolated-cache run on 2026-10-01; no synthetic fixture or manual registry capture was used."
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "schema_version": "expanded-v1",
+  "note": "Frozen 23-license evaluation-only ground truth. Production code must not consume this file. Shared licenses use case_ids and count once globally.",
+  "identities": {
+    "P02": {"business_name": "John C. Flood"},
+    "P03": {"business_name": "Brownlee Plumbing LLC"},
+    "P04": {"business_name": "PowerWorks LLC"},
+    "P05": {"business_name": "JM Plumbing & Heating"},
+    "P06": {"business_name": "FDL Electric"},
+    "P08": {"business_name": "Abacus Plumbing, Air Conditioning & Electrical"},
+    "P09": {"business_name": "Fox Service Company"},
+    "P10": {"business_name": "Benjamin Franklin Plumbing of Austin"},
+    "P11": {"business_name": "Mr. Rooter Plumbing of Austin"},
+    "P12": {"business_name": "Cabrillo Plumbing, Heating & Air"},
+    "P13": {"business_name": "Cabrillo Plumbing, Heating & Air"},
+    "P14": {"business_name": "TRIO Heating, Air & Plumbing"},
+    "P15": {"business_name": "Prime Plumbing and Drain, Inc."},
+    "P16": {"business_name": "Roto-Rooter San Francisco"},
+    "P28": {"business_name": "Abacus Plumbing, Air Conditioning & Electrical"}
+  },
+  "verified_licenses": [
+    {"global_id": "DPOR:2705019835", "case_ids": ["P02"], "board_id": "DPOR", "license_number": "2705019835"},
+    {"global_id": "DC_INDUSTRIAL_TRADES:PC502", "case_ids": ["P02"], "board_id": "DC_INDUSTRIAL_TRADES", "license_number": "PC502"},
+    {"global_id": "DC_INDUSTRIAL_TRADES:RC770", "case_ids": ["P02"], "board_id": "DC_INDUSTRIAL_TRADES", "license_number": "RC770"},
+    {"global_id": "DPOR:2710061674", "case_ids": ["P03"], "board_id": "DPOR", "license_number": "2710061674"},
+    {"global_id": "DPOR:2705159268", "case_ids": ["P03"], "board_id": "DPOR", "license_number": "2705159268"},
+    {"global_id": "MD_ELECTRICIANS:14003", "case_ids": ["P04"], "board_id": "MD_ELECTRICIANS", "license_number": "14003"},
+    {"global_id": "DC_INDUSTRIAL_TRADES:ECC40000308", "case_ids": ["P05"], "board_id": "DC_INDUSTRIAL_TRADES", "license_number": "ECC40000308"},
+    {"global_id": "DC_INDUSTRIAL_TRADES:PC1000776", "case_ids": ["P05"], "board_id": "DC_INDUSTRIAL_TRADES", "license_number": "PC1000776"},
+    {"global_id": "DC_INDUSTRIAL_TRADES:RC902397", "case_ids": ["P05"], "board_id": "DC_INDUSTRIAL_TRADES", "license_number": "RC902397"},
+    {"global_id": "TDLR:39935", "case_ids": ["P06"], "board_id": "TDLR", "license_number": "39935"},
+    {"global_id": "TDLR:441136", "case_ids": ["P06"], "board_id": "TDLR", "license_number": "441136"},
+    {"global_id": "TSBPE:20628", "case_ids": ["P08", "P28"], "board_id": "TSBPE", "license_number": "20628"},
+    {"global_id": "TDLR:30557", "case_ids": ["P08", "P28"], "board_id": "TDLR", "license_number": "30557"},
+    {"global_id": "TDLR:TACLA00135747C", "case_ids": ["P08", "P28"], "board_id": "TDLR", "license_number": "TACLA00135747C"},
+    {"global_id": "TDLR:33423", "case_ids": ["P09"], "board_id": "TDLR", "license_number": "33423"},
+    {"global_id": "TDLR:TACLB00112806E", "case_ids": ["P09"], "board_id": "TDLR", "license_number": "TACLB00112806E"},
+    {"global_id": "TSBPE:38471", "case_ids": ["P09"], "board_id": "TSBPE", "license_number": "38471"},
+    {"global_id": "TSBPE:15007", "case_ids": ["P10"], "board_id": "TSBPE", "license_number": "15007"},
+    {"global_id": "TSBPE:45226", "case_ids": ["P11"], "board_id": "TSBPE", "license_number": "45226"},
+    {"global_id": "CSLB:629538", "case_ids": ["P12", "P13"], "board_id": "CSLB", "license_number": "629538"},
+    {"global_id": "CSLB:1061107", "case_ids": ["P14"], "board_id": "CSLB", "license_number": "1061107"},
+    {"global_id": "CSLB:1103922", "case_ids": ["P15"], "board_id": "CSLB", "license_number": "1103922"},
+    {"global_id": "CSLB:806952", "case_ids": ["P16"], "board_id": "CSLB", "license_number": "806952"}
+  ],
+  "explicit_non_positives": [
+    "TSBPE:45535", "MD_ELECTRICIANS:93215", "DC_INDUSTRIAL_TRADES:PGM1002071", "DPOR:2705005038"
+  ]
+}

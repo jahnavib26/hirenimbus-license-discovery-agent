@@ -1,0 +1,25 @@
+{
+  "capture_method": "manual_official_source",
+  "source_url": "https://bizfileonline.sos.ca.gov/search/business",
+  "lookup_at": "2026-10-01T18:30:00Z",
+  "search_mode": "Business Name",
+  "search_term": "Example Builders",
+  "candidates": [
+    {
+      "Entity Number": "SYNTHCA001",
+      "Entity Name": "Example Builders LLC",
+      "Status": "Active",
+      "Business Address": "1 Main Street, Sacramento, CA 95814",
+      "People": [
+        {"Name": "Opal Officer", "Role": "Officer"},
+        {"Name": "Dana Director", "Role": "Director"},
+        {"Name": "Mina Member", "Role": "Member"},
+        {"Name": "Mara Manager", "Role": "Manager"}
+      ],
+      "Agent for Service of Process": {
+        "Name": "Alex Service Agent",
+        "Address": "2 Process Avenue, Sacramento, CA 95814"
+      }
+    }
+  ]
+}

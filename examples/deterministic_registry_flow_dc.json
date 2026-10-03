@@ -1,0 +1,23 @@
+{
+  "artifact_kind": "fixture_injected_deterministic_demonstration",
+  "disclaimer": "Fixture/injected demonstration; not a live registry success; not counted in evaluation.",
+  "source_test": "tests/test_dc_integration.py::test_dc_registry_principal_reaches_opla_and_unique_exact_holder_is_accepted",
+  "base_identity": {
+    "business_name": "Capitol Mechanical LLC",
+    "place_id": "dc-place-1"
+  },
+  "established_registry_entity": {
+    "registry": "DC DLCP Open Data registries",
+    "entity_id": "C-SYNTH-DC-1",
+    "legal_name": "Capitol Mechanical LLC",
+    "establishment_basis": "injected official-shaped corporate, trade-name, and beneficial-owner records"
+  },
+  "resulting_search_keys": [
+    {"value": "Capitol Mechanical LLC", "origin": "base_identity", "source_field": "business_name"},
+    {"value": "Capitol Mechanical LLC", "origin": "registry", "source_field": "legal_name", "entity_id": "C-SYNTH-DC-1"},
+    {"value": "Capitol Comfort", "origin": "registry", "source_field": "dba", "entity_id": "C-SYNTH-DC-1"},
+    {"value": "Ada Owner", "origin": "registry", "source_field": "owner_principal", "registry_role": "beneficial owner", "entity_id": "C-SYNTH-DC-1"}
+  ],
+  "board_request": {"board_id": "DC_INDUSTRIAL_TRADES", "searched_names": ["Capitol Mechanical LLC", "Capitol Comfort", "Ada Owner"]},
+  "final_decision": {"accepted": true, "license_number": "PM-SYNTH-DC-1", "match_confidence": "medium", "matched_identity_field": "owner_principal"}
+}

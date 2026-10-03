@@ -13,8 +13,10 @@ from app.board_adapters import (
     BoardAdapter,
     CSLBAdapter,
     CaptchaBlockedError,
+    DCIndustrialTradesAdapter,
     DPORAdapter,
     MHICAdapter,
+    MarylandElectriciansAdapter,
     SourceAccessError,
     TDLRAdapter,
     TSBPEAdapter,
@@ -23,6 +25,7 @@ from app.day2_models import (
     BoardSearchResult,
     BoardSelection,
     BoardSelectionResult,
+    LicenseNumberEvidence,
     SearchKey,
     SearchStatus,
 )
@@ -46,7 +49,9 @@ class LicenseSourceRunner:
             "tdlr_all_licenses_open_data": TDLRAdapter(self._client),
             "free_licensee_lists": TSBPEAdapter(self._client),
             "dpor_regulant_lists": DPORAdapter(self._client),
+            "dc_opla_industrial_trades": DCIndustrialTradesAdapter(self._client),
             "cslb_license_master": CSLBAdapter(self._client),
+            "official_electrician_query": MarylandElectriciansAdapter(self._client),
             "mhic_public_query": MHICAdapter(self._client),
         }
         self._clock = clock or (lambda: datetime.now(timezone.utc))
@@ -56,16 +61,28 @@ class LicenseSourceRunner:
         self,
         plan: BoardSelectionResult,
         search_keys: list[SearchKey],
+        license_number_evidence: list[LicenseNumberEvidence] | None = None,
     ) -> list[BoardSearchResult]:
         results: list[BoardSearchResult] = []
 
         for selection in plan.selections:
+            audited_search_keys = (
+                [key.model_copy(deep=True) for key in search_keys]
+                if selection.jurisdiction.strip().upper() == "MD"
+                else []
+            )
+            exact_evidence = [
+                item for item in (license_number_evidence or [])
+                if item.likely_board_id == selection.board_id
+            ]
             cache_key = (
                 selection.model_dump_json(),
                 tuple(
-                    (key.source_field, key.original_value, key.normalized_value)
+                (key.source_field, key.original_value, key.normalized_value)
+                    + (key.origin, key.registry_name, key.entity_id, key.source_url, key.registry_role)
                     for key in search_keys
                 ),
+                tuple((item.likely_board_id, item.normalized_number, item.page_url) for item in exact_evidence),
             )
             cached = self._successful_cache.get(cache_key)
             if cached is not None:
@@ -82,13 +99,15 @@ class LicenseSourceRunner:
                         jurisdiction=selection.jurisdiction,
                         strategy=selection.strategy,
                         search_status="skipped",
+                        issue_kind="no_safe_adapter",
                         source_url=selection.source_url,
                         fetched_at=fetched_at,
+                        search_keys=audited_search_keys,
                         notes=["No safe official adapter is configured for this selection."],
                     )
                 )
                 continue
-            if not search_keys:
+            if not search_keys and not exact_evidence:
                 results.append(
                     BoardSearchResult(
                         board_id=selection.board_id,
@@ -98,17 +117,24 @@ class LicenseSourceRunner:
                         search_status="skipped",
                         source_url=selection.source_url,
                         fetched_at=fetched_at,
-                        notes=["Day 1 established no name field that can be used as a search key."],
+                        search_keys=audited_search_keys,
+                        notes=["No established name or discovered board-specific license number is available."],
                     )
                 )
                 continue
 
             try:
-                candidates = adapter.fetch(selection, search_keys, fetched_at)
+                candidates = []
+                exact_lookup = getattr(adapter, "lookup_by_license_number", None)
+                if exact_evidence and callable(exact_lookup):
+                    candidates.extend(exact_lookup(selection, exact_evidence, fetched_at))
+                if search_keys:
+                    candidates.extend(adapter.fetch(selection, search_keys, fetched_at))
+                candidates = _deduplicate_candidates(candidates)
             except CaptchaBlockedError as exc:
-                results.append(
-                    _failed_result(selection, "captcha_blocked", fetched_at, str(exc))
-                )
+                failed = _failed_result(selection, "captcha_blocked", fetched_at, str(exc))
+                failed.search_keys = audited_search_keys
+                results.append(failed)
             except (
                 httpx.HTTPError,
                 SourceAccessError,
@@ -116,7 +142,9 @@ class LicenseSourceRunner:
                 UnicodeError,
                 ValueError,
             ) as exc:
-                results.append(_failed_result(selection, "unreachable", fetched_at, str(exc)))
+                failed = _failed_result(selection, "unreachable", fetched_at, str(exc))
+                failed.search_keys = audited_search_keys
+                results.append(failed)
             else:
                 result = BoardSearchResult(
                     board_id=selection.board_id,
@@ -126,9 +154,10 @@ class LicenseSourceRunner:
                     search_status="ok" if candidates else "not_found",
                     source_url=selection.source_url,
                     fetched_at=fetched_at,
+                    search_keys=audited_search_keys,
                     candidates=candidates,
                     notes=(
-                        ["Returned rows are candidates only; no identity match was accepted."]
+                        ["Returned official rows are candidates only; no identity match was accepted."]
                         if candidates
                         else [
                             "The official source was reached but returned no candidate rows; this is not an unlicensed conclusion."
@@ -143,12 +172,25 @@ class LicenseSourceRunner:
                 BoardSearchResult(
                     jurisdiction=issue.jurisdiction,
                     search_status="skipped",
+                    issue_kind=issue.kind,
                     fetched_at=self._clock(),
                     notes=[issue.reason],
                 )
             )
 
         return results
+
+
+def _deduplicate_candidates(candidates):
+    unique = {}
+    for candidate in candidates:
+        key = (candidate.board_id, (candidate.license_number or "").strip().casefold(), (candidate.holder_name or "").strip().casefold())
+        existing = unique.get(key)
+        if existing is None:
+            unique[key] = candidate
+        elif candidate.discovery_evidence:
+            existing.discovery_evidence = list({(item.page_url, item.normalized_number): item for item in [*existing.discovery_evidence, *candidate.discovery_evidence]}.values())
+    return list(unique.values())
 
 
 def _failed_result(

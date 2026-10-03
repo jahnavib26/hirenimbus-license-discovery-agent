@@ -1,0 +1,126 @@
+{
+  "artifact_kind": "fixture_injected_deterministic_demonstration",
+  "disclaimer": "Fixture/injected demonstration; not a live registry or license-search success; not counted in evaluation.",
+  "source_test": "tests/test_md_integration.py::test_md_electrician_manual_registry_keys_are_audited_at_captcha_gated_board",
+  "base_identity": {
+    "business_name": "Harbor Home Services",
+    "address": "100 Harbor St, Baltimore, MD 21201",
+    "place_id": "md-place-1"
+  },
+  "registry_evidence": {
+    "capture_method": "manual_official_source",
+    "source_url": "https://egov.maryland.gov/BusinessExpress/EntitySearch/BusinessInformation/SYNTHMD01",
+    "candidate_id": "SYNTHMD01",
+    "established_entity": {
+      "registry": "Maryland SDAT Business Express",
+      "entity_id": "SYNTHMD01",
+      "legal_name": "Harbor Renovations LLC",
+      "establishment_basis": "injected manual official-source-shaped evidence with exact principal-office address and active trade name"
+    }
+  },
+  "expanded_search_keys": [
+    {
+      "original_value": "Harbor Home Services",
+      "normalized_value": "harbor home services",
+      "source_field": "business_name",
+      "origin": "base_identity",
+      "registry_name": null,
+      "entity_id": null,
+      "source_url": null,
+      "registry_role": null
+    },
+    {
+      "original_value": "Harbor Renovations LLC",
+      "normalized_value": "harbor renovations llc",
+      "source_field": "legal_name",
+      "origin": "registry",
+      "registry_name": "Maryland SDAT Business Express",
+      "entity_id": "SYNTHMD01",
+      "source_url": "https://egov.maryland.gov/BusinessExpress/EntitySearch/BusinessInformation/SYNTHMD01",
+      "registry_role": null
+    },
+    {
+      "original_value": "Harbor Home Services",
+      "normalized_value": "harbor home services",
+      "source_field": "dba",
+      "origin": "registry",
+      "registry_name": "Maryland SDAT Business Express",
+      "entity_id": "SYNTHMD01",
+      "source_url": "https://egov.maryland.gov/BusinessExpress/EntitySearch/BusinessInformation/SYNTHMD01",
+      "registry_role": "current trade name"
+    },
+    {
+      "original_value": "Morgan Manager",
+      "normalized_value": "morgan manager",
+      "source_field": "owner_principal",
+      "origin": "registry",
+      "registry_name": "Maryland SDAT Business Express",
+      "entity_id": "SYNTHMD01",
+      "source_url": "https://egov.maryland.gov/BusinessExpress/EntitySearch/BusinessInformation/SYNTHMD01",
+      "registry_role": "Manager"
+    }
+  ],
+  "board_selection": {
+    "jurisdiction": "MD",
+    "board_id": "MD_ELECTRICIANS",
+    "board_name": "Maryland State Board of Electricians",
+    "strategy": "official_electrician_query",
+    "source_url": "https://www.dllr.state.md.us/cgi-bin/ElectronicLicensing/OP_Search/OP_search.cgi?calling_app=ME::ME_personal_name",
+    "applicable_categories": ["electrical"]
+  },
+  "board_search_result": {
+    "board_id": "MD_ELECTRICIANS",
+    "search_status": "captcha_blocked",
+    "source_url": "https://www.dllr.state.md.us/cgi-bin/ElectronicLicensing/OP_Search/OP_search.cgi?calling_app=ME::ME_personal_name",
+    "search_keys": [
+      {
+        "original_value": "Harbor Home Services",
+        "normalized_value": "harbor home services",
+        "source_field": "business_name",
+        "origin": "base_identity",
+        "registry_name": null,
+        "entity_id": null,
+        "source_url": null,
+        "registry_role": null
+      },
+      {
+        "original_value": "Harbor Renovations LLC",
+        "normalized_value": "harbor renovations llc",
+        "source_field": "legal_name",
+        "origin": "registry",
+        "registry_name": "Maryland SDAT Business Express",
+        "entity_id": "SYNTHMD01",
+        "source_url": "https://egov.maryland.gov/BusinessExpress/EntitySearch/BusinessInformation/SYNTHMD01",
+        "registry_role": null
+      },
+      {
+        "original_value": "Harbor Home Services",
+        "normalized_value": "harbor home services",
+        "source_field": "dba",
+        "origin": "registry",
+        "registry_name": "Maryland SDAT Business Express",
+        "entity_id": "SYNTHMD01",
+        "source_url": "https://egov.maryland.gov/BusinessExpress/EntitySearch/BusinessInformation/SYNTHMD01",
+        "registry_role": "current trade name"
+      },
+      {
+        "original_value": "Morgan Manager",
+        "normalized_value": "morgan manager",
+        "source_field": "owner_principal",
+        "origin": "registry",
+        "registry_name": "Maryland SDAT Business Express",
+        "entity_id": "SYNTHMD01",
+        "source_url": "https://egov.maryland.gov/BusinessExpress/EntitySearch/BusinessInformation/SYNTHMD01",
+        "registry_role": "Manager"
+      }
+    ],
+    "candidate_count": 0,
+    "query_submitted": false,
+    "audit_note": "Expanded SearchKeys reached the Maryland board selection and were recorded on its result. The official name form requires a human CAPTCHA, so the name query was not submitted."
+  },
+  "final_decision": {
+    "accepted": false,
+    "board_status": "captcha_blocked",
+    "reason": "The official public search form required human CAPTCHA interaction; no license result is claimed."
+  }
+}

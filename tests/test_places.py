@@ -6,6 +6,8 @@ from app.resolver import IdentityResolver
 
 
 def test_search_uses_places_new_phone_text_flow_and_minimal_fields() -> None:
+    queries: list[str] = []
+
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.method == "POST"
         assert request.url == "https://places.googleapis.com/v1/places:searchText"
@@ -13,8 +15,8 @@ def test_search_uses_places_new_phone_text_flow_and_minimal_fields() -> None:
         assert request.headers["x-goog-fieldmask"] == "places.id"
         assert request.read()
         payload = __import__("json").loads(request.content)
-        assert payload == {
-            "textQuery": "+15125551234",
+        queries.append(payload["textQuery"])
+        assert {key: value for key, value in payload.items() if key != "textQuery"} == {
             "regionCode": "US",
             "languageCode": "en",
             "includePureServiceAreaBusinesses": True,
@@ -25,15 +27,18 @@ def test_search_uses_places_new_phone_text_flow_and_minimal_fields() -> None:
     client = GooglePlacesClient("secret", http_client=httpx.Client(transport=httpx.MockTransport(handler)))
 
     assert client.search_by_phone("+15125551234") == ["abc"]
+    assert queries == [
+        "+15125551234", "+1 5125551234", "512-555-1234", "(512) 555-1234"
+    ]
 
 
-def test_search_retries_spaced_phone_only_after_zero_compact_candidates() -> None:
+def test_search_queries_standard_phone_formats_even_when_compact_has_candidates() -> None:
     queries: list[str] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
         payload = __import__("json").loads(request.content)
         queries.append(payload["textQuery"])
-        places = [] if len(queries) == 1 else [{"id": "fallback-place"}]
+        places = [{"id": "fallback-place"}] if len(queries) == 3 else []
         return httpx.Response(200, json={"places": places})
 
     client = GooglePlacesClient(
@@ -41,13 +46,15 @@ def test_search_retries_spaced_phone_only_after_zero_compact_candidates() -> Non
     )
 
     assert client.search_by_phone("+17034779016") == ["fallback-place"]
-    assert queries == ["+17034779016", "+1 7034779016"]
+    assert queries == [
+        "+17034779016", "+1 7034779016", "703-477-9016", "(703) 477-9016"
+    ]
 
 
 def test_spaced_phone_fallback_can_recover_a_candidate() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         query = __import__("json").loads(request.content)["textQuery"]
-        places = [{"id": "brownlee"}] if query == "+1 7034779016" else []
+        places = [{"id": "brownlee"}] if query == "(703) 477-9016" else []
         return httpx.Response(200, json={"places": places})
 
     client = GooglePlacesClient(
@@ -60,8 +67,10 @@ def test_spaced_phone_fallback_can_recover_a_candidate() -> None:
 def test_search_deduplicates_fallback_place_ids() -> None:
     responses = iter(
         [
-            {"places": []},
             {"places": [{"id": "same-place"}, {"id": "same-place"}]},
+            {"places": []},
+            {"places": [{"id": "same-place"}]},
+            {"places": []},
         ]
     )
     transport = httpx.MockTransport(
@@ -74,7 +83,7 @@ def test_search_deduplicates_fallback_place_ids() -> None:
     assert client.search_by_phone("+17034779016") == ["same-place"]
 
 
-def test_compact_candidates_prevent_the_fallback_request() -> None:
+def test_compact_candidates_do_not_prevent_formatted_phone_searches() -> None:
     queries: list[str] = []
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -86,7 +95,9 @@ def test_compact_candidates_prevent_the_fallback_request() -> None:
     )
 
     assert client.search_by_phone("+17034779016") == ["compact-place"]
-    assert queries == ["+17034779016"]
+    assert queries == [
+        "+17034779016", "+1 7034779016", "703-477-9016", "(703) 477-9016"
+    ]
 
 
 def test_fallback_candidate_still_requires_an_exact_returned_phone() -> None:
@@ -115,7 +126,9 @@ def test_fallback_candidate_still_requires_an_exact_returned_phone() -> None:
 
     assert result.found is False
     assert result.assessments[0].phone_verification == "mismatch"
-    assert text_queries == ["+15125551234", "+1 5125551234"]
+    assert text_queries == [
+        "+15125551234", "+1 5125551234", "512-555-1234", "(512) 555-1234"
+    ]
 
 
 def test_details_requests_only_identity_fields_and_parses_response() -> None:
@@ -146,12 +159,44 @@ def test_details_requests_only_identity_fields_and_parses_response() -> None:
     assert details.national_phone_number == "(512) 555-1234"
 
 
-def test_http_failure_is_wrapped_without_leaking_provider_response() -> None:
-    transport = httpx.MockTransport(lambda request: httpx.Response(403, text="sensitive details"))
-    client = GooglePlacesClient("secret", http_client=httpx.Client(transport=transport))
+@pytest.mark.parametrize(
+    ("status", "expected"),
+    [
+        (403, "Google Places access denied (HTTP 403)."),
+        (429, "Google Places rate limited (HTTP 429)."),
+        (503, "Google Places service error (HTTP 503)."),
+    ],
+)
+def test_http_failure_diagnostic_class_is_safe(status: int, expected: str) -> None:
+    transport = httpx.MockTransport(
+        lambda request: httpx.Response(status, text="sensitive response body")
+    )
+    client = GooglePlacesClient(
+        "private-test-key", http_client=httpx.Client(transport=transport)
+    )
 
-    with pytest.raises(PlacesLookupError, match="Google Places request failed"):
-        client.search_by_phone("+15125551234")
+    with pytest.raises(PlacesLookupError) as exc_info:
+        client._search_text("512-555-0100")
+
+    assert str(exc_info.value) == expected
+    assert "private-test-key" not in str(exc_info.value)
+    assert "sensitive response body" not in str(exc_info.value)
+
+
+def test_transport_failure_has_safe_diagnostic() -> None:
+    def fail(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("private-test-key and sensitive transport detail")
+
+    client = GooglePlacesClient(
+        "private-test-key", http_client=httpx.Client(transport=httpx.MockTransport(fail))
+    )
+
+    with pytest.raises(PlacesLookupError) as exc_info:
+        client._search_text("512-555-0100")
+
+    assert str(exc_info.value) == "Google Places transport failure."
+    assert "private-test-key" not in str(exc_info.value)
+    assert "sensitive transport detail" not in str(exc_info.value)
 
 
 def test_malformed_details_are_reported_as_provider_failure() -> None:

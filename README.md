@@ -1,56 +1,73 @@
 # HireNimbus License Discovery Agent
 
-This project takes a messy U.S. business phone number and returns an evidence-backed business identity and relevant contractor or trade-license information.
+Given a U.S. business phone number, this project looks for a business identity
+and relevant contractor or trade licenses. It records its evidence and source
+limits so a reviewer can see why each candidate was accepted, rejected, or left
+unresolved. The operating rule is: **acquire broadly, accept conservatively**.
 
-The main design principle is simple: in a marketplace recommendation workflow, attaching the wrong identity or license is worse than returning an incomplete result. The pipeline therefore favors strong evidence over guessing.
+## What the pipeline does
 
-## At a glance
+```mermaid
+flowchart LR
+    A[Phone] --> B[Google Places identity search]
+    B --> C[First-party website checks]
+    C --> D[Official state registry, when safe]
+    D --> E[Established legal, DBA, and principal names]
+    B --> E
+    E --> F[Board searches]
+    F --> G[Conservative license matcher]
+    G --> H[Auditable result]
+```
 
-| | |
-|---|---|
-| Input | U.S. business phone number |
-| Output | Business identity + relevant license results + evidence |
-| Identity sources | Google Places + first-party website verification |
-| License sources | Official state licensing boards / open data |
-| Interfaces | `lookup_identity` CLI + `find_licenses(phone)` |
-| Tests | 177 passing |
+1. Normalize and validate the phone, then ask Google Places for candidates and
+   details. A Places result is a hypothesis until its identity is supported.
+2. Check the first-party website's homepage and a bounded set of identity routes
+   for phone, name, address, legal-name, and board-specific license-number
+   evidence. The crawl is limited to eight same-domain pages.
+3. Query a relevant official registry where a safe public path exists. Only an
+   established entity can add registry-backed legal names, DBAs, or qualifying
+   principals to the shared SearchKeys.
+4. Send those keys to selected official licensing boards. Board rows are
+   candidates; the final matcher checks identity, jurisdiction, trade, and
+   contradictions before acceptance.
+
+Registry evidence keeps its source, entity ID, original name, and role. Fuzzy
+similarity by itself cannot establish an entity or accept a license. Partial
+and fuzzy board-name matches remain near-misses. A blocked or empty query is
+reported as incomplete or not-found for that query; it is not evidence that a
+business is unlicensed.
 
 ## Setup
 
-Python 3.12+ is required.
+Python 3.12 or newer is required.
 
 ```bash
-python3.12 -m venv .venv
+python -m venv .venv
 source .venv/bin/activate
 python -m pip install -e '.[dev]'
 cp .env.example .env
 ```
 
-Enable **Places API (New)** in Google Cloud and add your key to `.env`:
+Enable Google Places API (New) in Google Cloud and add a restricted key to
+`.env`:
 
 ```dotenv
-GOOGLE_PLACES_API_KEY=replace-with-a-restricted-google-places-api-key
+GOOGLE_PLACES_API_KEY=your-restricted-api-key
 ```
 
-`.env` and runtime cache files are ignored by Git.
+`.env` and runtime caches are ignored by Git. The CLI resolves the `.env` file
+from the current directory. You can set `HIRENIMBUS_CACHE_PATH` to change the
+default `.cache/license_results.json` cache path.
 
-An optional `HIRENIMBUS_CACHE_PATH` can be used to override the default cache location:
+## Run it
 
-```text
-.cache/license_results.json
-```
-
-## Usage
-
-### Identity lookup
+Resolve the identity only:
 
 ```bash
 lookup_identity "(512) 943-7070"
 ```
 
-The CLI returns JSON containing the normalized phone, resolved identity when supported, confidence, evidence, candidate assessments, notes, and errors.
-
-### Full license pipeline
+Run the full pipeline from Python:
 
 ```python
 from app import find_licenses
@@ -59,238 +76,181 @@ result = find_licenses("(512) 943-7070")
 print(result.model_dump_json(indent=2))
 ```
 
-To force a fresh provider and board search:
+`find_licenses(phone, refresh=True)` makes a new attempt and returns that
+attempt for review. A partial or failed refresh does not replace a previously
+stored complete Phase 2 result.
 
-```python
-result = find_licenses("(512) 943-7070", refresh=True)
-```
+### Cache keys
 
-`find_licenses(phone)` is the thin tool interface for the full pipeline. The implementation uses the function option rather than a separate HTTP endpoint or full MCP server.
+Without a market hint, Phase 2 uses `phase2:<normalized E.164 phone>`. With a
+market hint, it uses
+`phase2:expanded:<normalized E.164 phone>:<trimmed, case-folded market hint>`.
+The hint helps choose likely jurisdictions; it does not establish identity or
+license ownership.
 
-## Architecture
+## Registry evidence and conservative matching
 
-```mermaid
-flowchart TD
-    A[Phone Input] --> B[Normalize + Validate]
-    B -->|Invalid| X[Validation Error]
-    B -->|Valid| C[Google Places]
+An established entity can add three kinds of names to board search:
 
-    C --> D{Exact Phone Match?}
+- the registry's legal name;
+- a current official DBA, trade name, or fictitious name;
+- a person explicitly identified by the registry as a qualifying principal.
 
-    D -->|Yes| E[Resolved Identity]
-    D -->|No| F[First-Party Website Verification]
+The base Places name remains separately labeled. Registered agents, organizers,
+signers, and service agents are not principal keys. Multiple unresolved
+registry candidates remain ambiguous. Exact normalized names and qualifying
+official aliases may establish an entity under the documented policy; fuzzy
+similarity alone, a registered-agent address, or a shared city does not.
 
-    F -->|Verified| E
-    F -->|Not Verified| Y[Unresolved Identity]
+Final matching also checks board jurisdiction and trade compatibility, exact
+identity evidence, and material conflicts. The 0.88 fuzzy threshold is retained
+for near-miss reporting; fuzzy similarity alone never accepts a license. An
+exact first-party published license number can support a separate, narrow
+board-specific bridge only when the verified first-party evidence and official
+board return the same canonical number and the remaining safeguards pass.
+Different-name person or master-license records still need an established
+principal relationship or another existing person-specific rule.
 
-    E --> G[Select Relevant Licensing Boards]
-    G --> H[Search Official Sources]
-    H --> I[Normalize + Match License Candidates]
-    I --> J[Evidence-Backed PipelineResult]
+## State-source limits
 
-    H -->|Blocked / Unreachable| K[Partial Result with search_status]
-    K --> J
+| State / source | What the current integration can do | Main limit |
+|---|---|---|
+| Virginia SCC and DPOR | Parse a legitimately available SCC detail record; search DPOR official regulant lists. | SCC live name search requires reCAPTCHA and stops there. Detail parsing is not a general manual-ID importer. DPOR downloads can be malformed or unavailable. See [Virginia evidence workflow](docs/virginia_manual_registry_evidence.md). |
+| Maryland SDAT and Labor boards | Preserve registry-derived SearchKeys into the Maryland board-search audit. | SDAT search/detail submission is protected by Turnstile. Electrician and MHIC board forms require human verification. The code performs a safe form check, records keys, and does not submit names or bypass CAPTCHA. The Maryland deterministic example proves the handoff, not a completed live name query. See [Maryland evidence workflow](docs/maryland_manual_registry_evidence.md). |
+| District of Columbia DLCP and Industrial Trades | Join official corporate, trade-name, and beneficial-owner records by exact file number; search supported plumbing, electrical, and HVAC/refrigeration license categories. | Other DC categories are unsupported. Beneficial-owner records are last-reported and do not prove the relationship is current. |
+| California SOS and CSLB | Probe ordinary public SOS access and accept explicit manual evidence; use official CSLB public license data for board candidates. | No documented unauthenticated automated SOS name-search contract is available; blocked/unavailable sources remain incomplete. County fictitious-business-name filings are out of scope. CSLB's free master file does not cover every historical or inactive record. |
+| Texas TDLR and TSBPE | Continue using the existing official board integrations; bounded retrieval improvements include exact-number lookups where supported. | No Texas registry enrichment was added. TSBPE downloads can return HTTP 403. Texas licenses are still included in the expanded reference set. |
 
-    J --> L[Cache / Preserve Last Successful Result]
-```
-
-## Identity resolution
-
-Phone numbers are parsed as U.S. numbers, validated, and normalized to E.164 (`+1XXXXXXXXXX`). Invalid or implausible numbers are rejected before external provider calls.
-
-Google Places API (New) is the primary identity source:
-
-1. Search using compact E.164 format.
-2. If that returns zero candidates, retry once using a spaced country-code format such as `+1 7034779016`.
-3. Retrieve Place Details.
-4. Prefer a candidate whose returned phone exactly matches the normalized input.
-
-The Google display name is stored as the public business name. It is not automatically treated as a legal name, DBA, or owner name.
-
-### First-party website verification
-
-Sometimes Google Places returns the correct business but lists a different location, office, or tracking phone.
-
-In that case, the system may verify the candidate using only the first-party website returned by Google Places.
-
-The candidate is accepted only when the page contains:
-
-- the exact input phone;
-- the same business identity; and
-- the exact full Places address.
-
-Exactly one candidate must satisfy the rule.
-
-These matches remain `medium` confidence, and the original Places phone mismatch stays visible in the result.
-
-The system does not perform general web search, crawl websites, or accept third-party directories as identity evidence.
-
-## License discovery
-
-After resolving the business identity, the system selects boards using the observed state and trade categories.
-
-Board routing is implemented for the supplied Texas, Virginia, California, Maryland, and DC sources where safe automated access is available.
-
-- Texas — TDLR and TSBPE
-- Virginia — DPOR
-- California — CSLB
-- Maryland — available MHIC / electrical mappings
-- District of Columbia — represented conservatively where the supplied source guidance is ambiguous
-
-Official bulk downloads and open data are preferred where available.
-
-CAPTCHAs, Cloudflare/WAF challenges, and other access protections are never bypassed.
-
-Each accepted license preserves the board, license number, type/class, holder name, raw and normalized status, dates when available, match confidence, evidence URL, and `fetched_at`. Missing values remain `null` rather than being inferred.
-
-### Matching
-
-A board result is first treated as a license candidate, not automatically as a license belonging to the business.
-
-Matching considers:
-
-- business name
-- legal name / DBA when known
-- owner or principal when known
-- phone
-- address
-- trade/category consistency
-
-Names are normalized for case, punctuation, whitespace, and common legal suffixes.
-
-Fuzzy or partial name similarity alone is not enough to accept a license. A conflicting board phone can only be overridden when the business name and a full official address both match exactly. The phone conflict still remains visible in the result.
-
-Active and inactive records are both eligible when the official source exposes them. Raw board status is preserved alongside normalized status.
-
-## Board search statuses
-
-Every selected board produces one of these outcomes:
-
-| Status | Meaning |
-|---|---|
-| `ok` | Source was reached and returned candidate rows |
-| `not_found` | Source was reached but returned no candidates for the search |
-| `unreachable` | HTTP, download, parsing, or schema failure prevented a reliable search |
-| `captcha_blocked` | Human CAPTCHA interaction was required |
-| `skipped` | No safe or sufficiently specific automated source was available |
-
-`not_found` does **not** mean the business is unlicensed.
-
-It only means that the specific source and search produced no matching candidate rows.
-
-## Caching
-
-The full pipeline cache is keyed by normalized phone number, so formatting variants share the same entry.
-
-Complete results may be cached.
-
-A partial or failed refresh does not overwrite a previous successful result.
-
-`refresh=True` always performs a fresh attempt while preserving the previous successful cached result if the new run is incomplete.
-
-Board-source requests also use light in-process caching and polite request spacing.
+No integration bypasses CAPTCHA, Turnstile, WAF, authentication, or other
+access controls. Google Places provider lookups completed without provider
+errors for all 22 valid rows in the current run; that does **not** mean all
+business identities resolved. Identity resolution still requires corroborating
+evidence.
 
 ## Evaluation
 
-The supplied `data/phones.csv` contains 28 rows. Of those, 22 contain valid phone inputs. After normalization and deduplication, those represent 17 unique valid phones.
+The expanded evaluation uses a **23-license frozen manually adjudicated
+reference set**. All 17 unique valid phone cases were manually investigated.
+Official board and license records were primary evidence; registry, DBA,
+principal, address, phone, and first-party website evidence supported the
+business-to-license relationship. Fuzzy similarity alone was not sufficient.
+Licenses shared across phones are globally deduplicated and retain multiple
+`case_ids`.
 
-Manual verification is used only for evaluation and is never read by production matching.
+The original eight-license set was only the conservative verified subset
+available during the initial evaluation. The expanded frozen set contains 23
+licenses: 10 Texas and 13 from Maryland, DC, Virginia, and California. Texas
+registry expansion was out of scope, but Texas board licenses remain in the
+denominator.
 
-### Results
+The frozen evaluation input is
+[`data/evaluation_ground_truth_expanded.json`](data/evaluation_ground_truth_expanded.json).
+Production code does not read it. The source audit is in
+[`evaluation/expanded_ground_truth_sources.md`](evaluation/expanded_ground_truth_sources.md);
+it identifies which frozen entries still lack retained primary evidence.
+Primary evidence is retained in the repository for 16 of the 23 frozen
+references. Seven historical/manual references could not be independently
+reproduced during the final audit because of current source-access limitations
+or missing retained relationship evidence. They remain frozen so the manually
+adjudicated evaluation is not retroactively changed; they are not described as
+currently independently verified.
 
-| Metric | Result |
-|---|---:|
-| Identity coverage | **10/17 (58.8%)** |
-| Identity accuracy | **8/8 judgeable predictions (100%)** |
-| License precision | **1/1 judgeable accepted licenses (100%)** |
-| License recall | **1/8 verified reference licenses (12.5%)** |
+To run the expanded evaluation, use a fresh cache and write the output outside
+the historical report paths. This performs live provider, registry, and board
+lookups; blocked or empty public sources remain incomplete. It does not
+overwrite the current or historical reports:
 
-License recall is limited mainly by inaccessible official sources, historical records missing from current bulk downloads, and business-to-license relationships that could not be proven from runtime evidence without making unsupported assumptions.
+```bash
+eval_dir="$(mktemp -d "${TMPDIR:-/tmp}/hirenimbus-expanded.XXXXXX")"
+PYTHONPATH=src python scripts/evaluate.py \
+  --ground-truth data/evaluation_ground_truth_expanded.json \
+  --cache-path "$eval_dir/cache.json" \
+  --output "$eval_dir/report.json"
+```
 
-Public Places and licensing-board data can change over time, so the checked-in evaluation report records the observed behavior and timestamps from the evaluation run.
+The current comparable report is
+[`evaluation/expanded_evaluation_report.json`](evaluation/expanded_evaluation_report.json).
+Measured against the frozen manually adjudicated reference set, its result is
+**11 / 23 (47.8% recall)**, **100% judgeable license precision (11/11)**, zero
+verified incorrect predictions, and one unverified out-of-set prediction:
+`DC_INDUSTRIAL_TRADES:ECC40000316`. Registry attribution is two legal-name
+recoveries, zero DBA/trade-name recoveries, and zero principal recoveries.
 
-## Example outputs
+P05 is the clearest registry-expansion success: the Places marketing name led
+to an official DC legal entity; its registry-derived legal-name key reached
+the Board of Industrial Trades; and three licenses were accepted. Two of those
+three are counted as legal-name-attributed recoveries; the third matched the
+base business name.
 
-Three direct pipeline outputs are checked into `examples/`:
+P16 recovered CSLB `806952` after the verified first-party San Francisco page
+published that exact number and the official CSLB data independently returned
+it. The accepted license is separate from the evaluator's identity-label
+check: the predicted Places label does not match the frozen `Roto-Rooter San
+Francisco` name, so P16's identity label remains incorrect.
 
-- `examples/p09_fox_service_company.json`
-  - identity resolved
-  - TDLR license `33423` accepted
-  - overall result remains partial because another relevant board was unreachable
+The Phase 1 report and initial Phase 2 report retain their historical 1 / 8
+results. The initial Phase 2 files are preserved follow-up snapshots. Phase 1
+is the tracked
+[`evaluation/day3_evaluation_report.json`](evaluation/day3_evaluation_report.json).
+The initial Phase 2 report and its explanation are preserved as
+[`evaluation/phase2_evaluation_report.json`](evaluation/phase2_evaluation_report.json)
+and [`evaluation/phase2_evaluation_audit.md`](evaluation/phase2_evaluation_audit.md).
+The earlier source-blocked expanded attempt is also retained at
+[`evaluation/expanded_evaluation_report.source_blocked.20261002T232127Z.json`](evaluation/expanded_evaluation_report.source_blocked.20261002T232127Z.json)
+and is marked non-comparable.
 
-- `examples/p16_roto_rooter_partial.json`
-  - identity resolved using first-party website verification
-  - downstream CSLB source was unreachable
+## Examples and tests
 
-- `examples/p23_invalid_phone.json`
-  - demonstrates invalid-input handling
+The four deterministic registry-flow artifacts and their state integration
+tests demonstrate injected evidence moving through establishment, SearchKey
+generation, board selection, and matching:
 
-The examples are direct `PipelineResult.model_dump_json(indent=2)` outputs and were not manually edited.
+- [Virginia example](examples/deterministic_registry_flow_va.json) and
+  [test](tests/test_va_integration.py)
+- [Maryland example](examples/deterministic_registry_flow_md.json) and
+  [test](tests/test_md_integration.py)
+- [DC example](examples/deterministic_registry_flow_dc.json) and
+  [test](tests/test_dc_integration.py)
+- [California example](examples/deterministic_registry_flow_ca.json) and
+  [test](tests/test_ca_integration.py)
 
-## Trade-offs and limitations
+These examples use synthetic or injected evidence, are labeled as such, and are
+excluded from live evaluation. In particular, the Maryland example ends at the
+human-check gate. These dated live case audits show only their original
+observations and are not current benchmark data: [Virginia](examples/phase2_va_brownlee_audit.json),
+[Maryland](examples/phase2_md_powerworks_audit.json),
+[DC](examples/phase2_dc_wl_gary_audit.json), and
+[California](examples/phase2_ca_roto_rooter_audit.json).
 
-The system intentionally prefers precision over speculative recall.
+The suite covers phone validation, Places and website evidence, registry
+parsing and establishment, SearchKey provenance, board routing and source
+status, exact and near-miss matching, cache behavior, and evaluation metrics.
+The latest verified run had 350 passing tests:
 
-Current limitations include:
-
-- alternate, tracking, or location-specific business phone numbers;
-- phones that return no Google Places candidate;
-- service-area businesses with limited address information;
-- differences between public business names, DBAs, legal entities, and owner-held licenses;
-- multi-location or multi-state businesses;
-- CAPTCHA/WAF restrictions and board outages;
-- current-only official datasets that may omit historical licenses;
-- changing source schemas and licensing requirements;
-- common or similar business names that cannot be safely matched without stronger corroborating evidence;
-- trades or localities where a statewide license may not be required or where licensing exemptions apply.
-
-## With more time
-
-I would focus on:
-
-- broader first-party and state-registry identity discovery when Places returns no candidate;
-- stronger legal-name, DBA, parent-company, and owner resolution;
-- more resilient access to legitimate official bulk datasets;
-- malformed-row-tolerant DPOR parsing with better diagnostics;
-- canonical board-specific license formatting;
-- richer multi-location and multi-state reasoning;
-- a larger manually verified evaluation set.
+```bash
+python -m compileall -q src/app scripts tests
+python -m pytest
+git diff --check
+```
 
 ## AI assistance
 
-AI coding assistants were used for implementation support, test generation, and debugging.
+AI tools assisted implementation, test and documentation drafting, and
+mechanical audits. I reviewed the changes and remain responsible for the
+engineering choices and acceptance rules. Fixture-driven examples are not
+presented as live evidence, and AI-generated text is not a substitute for an
+official source capture.
 
-I designed the overall approach and made the final engineering decisions, including:
+### Trade-offs / With more time
 
-- the phone → identity → license pipeline;
-- conservative identity verification and exact-phone-first matching;
-- first-party website verification;
-- evidence and confidence thresholds;
-- board routing and source selection;
-- license matching and acceptance rules;
-- conflict and failure handling;
-- caching and preservation of the last successful result;
-- evaluation methodology and metrics; and
-- the final review of the implementation against the take-home requirements.
+The implementation prioritizes auditable official evidence and conservative
+license acceptance over maximizing recall. CAPTCHA, Turnstile, WAF
+restrictions, incomplete public datasets, and ambiguous multi-location
+identities therefore remain explicit partial results rather than being
+bypassed or guessed through.
 
-I also rejected approaches that relied on unsupported inference, weaker provenance, or unsafe assumptions.
-
-Manual evaluation findings remain separate from production behavior. No case-specific evaluation labels, manually verified aliases, or known license numbers are hardcoded into runtime matching.
-
-## Tests
-
-Run the full suite with:
-
-```bash
-pytest
-```
-
-Current result:
-
-```text
-177 passed
-```
-
-The suite includes unit and integration tests for phone parsing, Google Places behavior, first-party website verification, board selection, source adapters, name normalization, license matching, status mapping, caching, pipeline behavior, evaluation calculations, and CLI behavior.
-
-Mocks and fixtures are used where appropriate; the 177 tests are not 177 live API calls.
+With more time, I would expand legitimate official-source coverage where stable
+APIs or datasets are available, improve multi-location identity resolution,
+and add California county FBN coverage. I would keep the current provenance
+and final-match safeguards rather than lowering matching thresholds to
+increase recall.

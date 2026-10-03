@@ -21,11 +21,18 @@ _STATE_CODES = {
 }
 
 
-def select_boards(identity: BusinessIdentity) -> BoardSelectionResult:
+def select_boards(
+    identity: BusinessIdentity,
+    additional_jurisdictions: dict[str, str] | None = None,
+) -> BoardSelectionResult:
     """Consider board mappings using Day 1's observed address-state geography."""
 
     result = BoardSelectionResult()
     observed_states = _unique(_jurisdiction(value) for value in identity.states if value.strip())
+    for jurisdiction in (additional_jurisdictions or {}):
+        normalized = _jurisdiction(jurisdiction)
+        if normalized not in observed_states:
+            observed_states.append(normalized)
     categories = _unique(
         value.strip().casefold()
         for value in identity.normalized_categories
@@ -42,6 +49,8 @@ def select_boards(identity: BusinessIdentity) -> BoardSelectionResult:
         return result
 
     for jurisdiction in observed_states:
+        evidence_note = (additional_jurisdictions or {}).get(jurisdiction)
+        before = len(result.selections)
         if jurisdiction == "TX":
             _select_texas(categories, result)
         elif jurisdiction == "VA":
@@ -78,6 +87,9 @@ def select_boards(identity: BusinessIdentity) -> BoardSelectionResult:
             _select_dc(categories, result)
         else:
             _add_unsupported(jurisdiction, categories, result)
+        if evidence_note:
+            for selection in result.selections[before:]:
+                selection.notes.append(f"Additional jurisdiction evidence: {evidence_note}")
 
     return result
 
@@ -152,11 +164,15 @@ def _select_maryland(categories: list[str], result: BoardSelectionResult) -> Non
                 board_id="MD_ELECTRICIANS",
                 board_name="Maryland State Board of Electricians",
                 strategy="official_electrician_query",
+                source_url=(
+                    "https://www.dllr.state.md.us/cgi-bin/ElectronicLicensing/OP_Search/"
+                    "OP_search.cgi?calling_app=ME::ME_personal_name"
+                ),
                 applicable_categories=["electrical"],
                 notes=[
                     _observed_state_note("MD"),
-                    "boards.md identifies the official trade query but supplies no exact URL.",
-                    "The query may be CAPTCHA-gated; Part 1 does not make a request or bypass CAPTCHA.",
+                    "The official public form searches a personal last name and requires a human CAPTCHA before submitting.",
+                    "Part 1 may inspect the public form but does not submit a query or bypass CAPTCHA.",
                 ],
             )
         )
@@ -187,19 +203,52 @@ def _select_maryland(categories: list[str], result: BoardSelectionResult) -> Non
 
 
 def _select_dc(categories: list[str], result: BoardSelectionResult) -> None:
-    for category in categories or [None]:
+    if not categories:
         result.issues.append(
             BoardSelectionIssue(
                 kind="ambiguous",
                 jurisdiction="DC",
-                category=category,
                 reason=(
-                    "Day 1 observed address state = DC, but boards.md provides only "
-                    "general DLCP/BOSS guidance and no category-specific mapping; "
-                    "no definitive board selection was made."
+                    "District of Columbia Industrial Trades selection requires an "
+                    "established normalized category."
                 ),
             )
         )
+        return
+
+    supported_categories = ["plumbing", "electrical", "hvac"]
+    if any(category in categories for category in supported_categories):
+        result.selections.append(
+            BoardSelection(
+                jurisdiction="DC",
+                board_id="DC_INDUSTRIAL_TRADES",
+                board_name="District of Columbia Board of Industrial Trades",
+                strategy="dc_opla_industrial_trades",
+                source_url=(
+                    "https://govservices.dcra.dc.gov/oplaportal/"
+                    "Home/GetLicenseSearchDetails"
+                ),
+                applicable_categories=supported_categories,
+                notes=[
+                    _observed_state_note("DC"),
+                    "The official Board of Industrial Trades covers plumbing, electrical, and refrigeration/air-conditioning trades.",
+                ],
+            )
+        )
+
+    for category in categories:
+        if category not in {"plumbing", "electrical", "hvac"}:
+            result.issues.append(
+                BoardSelectionIssue(
+                    kind="unsupported",
+                    jurisdiction="DC",
+                    category=category,
+                    reason=(
+                        "The narrow District of Columbia Industrial Trades route "
+                        "does not cover this normalized category."
+                    ),
+                )
+            )
 
 
 def _add_unsupported(

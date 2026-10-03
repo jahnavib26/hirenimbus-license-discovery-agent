@@ -8,7 +8,12 @@ from app.categories import CategoryMapper
 from app.models import PlaceDetails
 from app.places import PlacesLookupError
 from app.resolver import IdentityResolver
-from app.website import ObservedWebsitePhone, WebsiteFetchError, WebsitePage
+from app.website import (
+    ObservedWebsitePhone,
+    StructuredBusinessIdentity,
+    WebsiteFetchError,
+    WebsitePage,
+)
 
 
 @dataclass
@@ -16,6 +21,7 @@ class FakePlacesClient:
     candidate_ids: list[str] = field(default_factory=list)
     details: dict[str, PlaceDetails] = field(default_factory=dict)
     failure: bool = False
+    failed_details: set[str] = field(default_factory=set)
     search_calls: list[str] = field(default_factory=list)
     detail_calls: list[str] = field(default_factory=list)
 
@@ -27,6 +33,8 @@ class FakePlacesClient:
 
     def get_place_details(self, place_id: str) -> PlaceDetails:
         self.detail_calls.append(place_id)
+        if place_id in self.failed_details:
+            raise PlacesLookupError("details unavailable")
         return self.details[place_id]
 
 
@@ -38,7 +46,7 @@ class FakeWebsiteClient:
 
     def fetch(self, url: str) -> WebsitePage:
         self.calls.append(url)
-        if url in self.failures:
+        if url in self.failures or url not in self.pages:
             raise WebsiteFetchError("website unavailable")
         return self.pages[url]
 
@@ -170,6 +178,89 @@ def test_exact_website_phone_name_and_full_address_corroborate_candidate() -> No
     assert any("mismatch remains visible" in note for note in result.notes)
 
 
+def test_mismatched_places_phone_becomes_untrusted_registry_hypothesis() -> None:
+    candidate = place(international_phone_number="+1 737-555-1200")
+    resolver, _ = resolver_for(candidate)
+
+    result = resolver.resolve("512-555-1234")
+
+    assert result.found is False
+    assert result.identity is None
+    assert len(result.candidate_hypotheses) == 1
+    hypothesis = result.candidate_hypotheses[0]
+    assert hypothesis.identity.place_id == candidate.place_id
+    assert any(item.source == "google_places_phone_search" for item in hypothesis.evidence)
+    phone_search_evidence = next(
+        item for item in hypothesis.evidence
+        if item.source == "google_places_phone_search"
+    )
+    assert phone_search_evidence.observed["places_phone_verification"] == "mismatch"
+    assert phone_search_evidence.observed["registry_search_only"] is True
+    assert result.assessments[0].phone_verification == "mismatch"
+
+
+def test_first_party_name_address_and_legal_name_strengthen_but_do_not_promote_hypothesis() -> None:
+    candidate = place(international_phone_number="+1 737-555-1200")
+    page = WebsitePage(
+        requested_url=candidate.website_uri,
+        final_url=candidate.website_uri,
+        visible_text="Example Plumbing 1 Main Street Austin TX 78701",
+        phones=(),
+        structured_identities=(StructuredBusinessIdentity(
+            name="Example Plumbing",
+            legal_name="Example Plumbing LLC",
+            address="1 Main Street, Austin, TX 78701",
+            source_type="Plumber",
+        ),),
+    )
+    resolver = IdentityResolver(
+        FakePlacesClient(
+            candidate_ids=[candidate.place_id],
+            details={candidate.place_id: candidate},
+        ),
+        website_client=FakeWebsiteClient(pages={candidate.website_uri: page}),
+    )
+
+    result = resolver.resolve("512-555-1234")
+
+    assert result.found is False
+    assert result.identity is None
+    assert len(result.candidate_hypotheses) == 1
+    hypothesis = result.candidate_hypotheses[0]
+    assert hypothesis.identity.legal_name == "Example Plumbing LLC"
+    website_evidence = next(
+        item for item in hypothesis.evidence
+        if item.source == "official_business_website"
+    )
+    assert website_evidence.observed["website_exact_name_match"] is True
+    assert website_evidence.observed["website_exact_address_match"] is True
+    assert website_evidence.observed["input_phone_published"] is False
+    assert website_evidence.observed["structured_legal_name"] == "Example Plumbing LLC"
+    assert website_evidence.observed["canonical_domain"] == "example.test"
+
+
+def test_multiple_mismatched_places_candidates_remain_separate_hypotheses() -> None:
+    resolver, _ = resolver_for(
+        place("place-one", international_phone_number="+1 737-555-1200"),
+        place(
+            "place-two",
+            display_name="Unrelated Services",
+            international_phone_number="+1 737-555-1201",
+        ),
+    )
+
+    result = resolver.resolve("512-555-1234")
+
+    assert result.found is False
+    assert result.identity is None
+    assert [item.identity.place_id for item in result.candidate_hypotheses] == [
+        "place-one", "place-two"
+    ]
+    assert {item.identity.business_name for item in result.candidate_hypotheses} == {
+        "Example Plumbing", "Unrelated Services"
+    }
+
+
 @pytest.mark.parametrize(
     "text",
     [
@@ -278,7 +369,165 @@ def test_website_fetch_failure_keeps_existing_conservative_result() -> None:
     assert any("conservative Places result" in note for note in result.notes)
 
 
-def test_one_qualifying_site_does_not_override_another_candidate_fetch_failure() -> None:
+def test_first_party_contact_page_can_corroborate_stale_places_phone() -> None:
+    candidate = place(
+        international_phone_number="+1 737-555-1200",
+        website_uri="https://example.test/location/",
+    )
+    places = FakePlacesClient(
+        candidate_ids=[candidate.place_id], details={candidate.place_id: candidate}
+    )
+    contact_url = "https://example.test/contact/"
+    websites = FakeWebsiteClient(
+        pages={
+            contact_url: website_page(
+                contact_url,
+                text="Example Plumbing (512) 555-1234 1 Main St Austin TX 78701",
+            )
+        }
+    )
+
+    result = IdentityResolver(places, website_client=websites).resolve("512-555-1234")
+
+    assert result.found is True
+    assert result.identity and result.identity.place_id == candidate.place_id
+    assert result.evidence[-1].url == contact_url
+    assert websites.calls == [
+        "https://example.test/location/",
+        contact_url,
+        "https://example.test/contact-us/",
+        "https://example.test/about/",
+        "https://example.test/locations/",
+        "https://example.test/",
+    ]
+
+
+def test_one_places_details_failure_does_not_discard_an_independent_candidate() -> None:
+    candidate = place("survivor", website_uri=None)
+    places = FakePlacesClient(
+        candidate_ids=["unavailable", candidate.place_id],
+        details={candidate.place_id: candidate},
+        failed_details={"unavailable"},
+    )
+
+    result = IdentityResolver(places).resolve("512-555-1234")
+
+    assert result.found is True
+    assert result.identity and result.identity.place_id == candidate.place_id
+    assert [assessment.source_id for assessment in result.assessments] == [candidate.place_id]
+
+
+def test_homepage_identity_link_is_followed_once_within_same_origin() -> None:
+    candidate = place(
+        international_phone_number="+1 737-555-1200",
+        website_uri="https://example.test/",
+    )
+    contact_url = "https://example.test/customer-service-area/"
+    homepage = WebsitePage(
+        requested_url=candidate.website_uri,
+        final_url=candidate.website_uri,
+        visible_text="Example Plumbing homepage",
+        phones=(),
+        internal_identity_links=(contact_url, "https://directory.test/about/"),
+    )
+    websites = FakeWebsiteClient(pages={
+        candidate.website_uri: homepage,
+        contact_url: website_page(
+            contact_url,
+            text="Example Plumbing (512) 555-1234 1 Main St Austin TX 78701",
+        ),
+    })
+
+    result = IdentityResolver(
+        FakePlacesClient(
+            candidate_ids=[candidate.place_id], details={candidate.place_id: candidate}
+        ),
+        website_client=websites,
+    ).resolve("512-555-1234")
+
+    assert result.found is True
+    assert result.evidence[-1].url == contact_url
+    assert contact_url in websites.calls
+    assert "https://directory.test/about/" not in websites.calls
+
+
+def test_apex_homepage_safe_www_redirect_follows_www_contact_link() -> None:
+    apex = "https://example.test/"
+    www = "https://www.example.test/"
+    contact = "https://www.example.test/contact/"
+    websites = FakeWebsiteClient(pages={
+        apex: WebsitePage(
+            requested_url=apex,
+            final_url=www,
+            visible_text="Example Plumbing",
+            phones=(),
+            internal_identity_links=(contact,),
+        ),
+        contact: website_page(contact, text="Example Plumbing contact page"),
+    })
+
+    pages, failures = IdentityResolver(
+        FakePlacesClient(), website_client=websites
+    )._fetch_first_party_pages(apex)
+
+    assert failures == 4  # The four other bounded, conventional routes are absent in this fake.
+    assert contact in websites.calls
+    assert any(page.final_url == contact for page in pages)
+
+
+def test_root_redirect_to_home_follows_only_two_same_party_identity_links() -> None:
+    root = "https://example.test/"
+    home = "https://example.test/home/"
+    contact = "https://example.test/get-in-touch/"
+    about = "https://example.test/company/"
+    third = "https://example.test/our-team/"
+    websites = FakeWebsiteClient(pages={
+        root: WebsitePage(
+            requested_url=root,
+            final_url=home,
+            visible_text="Example Plumbing",
+            phones=(),
+            internal_identity_links=(contact, about, third),
+        ),
+        contact: website_page(contact, text="Example Plumbing contact page"),
+        about: website_page(about, text="Example Plumbing about page"),
+        third: website_page(third, text="Example Plumbing locations page"),
+    })
+
+    pages, failures = IdentityResolver(
+        FakePlacesClient(), website_client=websites
+    )._fetch_first_party_pages(root)
+
+    assert failures == 4  # The four conventional routes are absent in this fake.
+    assert contact in websites.calls
+    assert about in websites.calls
+    assert third not in websites.calls
+    assert len(pages) <= 8
+
+
+def test_homepage_discovery_rejects_cross_party_links() -> None:
+    root = "https://example.test/"
+    outside = "https://directory.test/contact/"
+    websites = FakeWebsiteClient(pages={
+        root: WebsitePage(
+            requested_url=root,
+            final_url=root,
+            visible_text="Example Plumbing",
+            phones=(),
+            internal_identity_links=(outside,),
+        ),
+    })
+
+    pages, failures = IdentityResolver(
+        FakePlacesClient(), website_client=websites
+    )._fetch_first_party_pages(root)
+
+    assert len(pages) == 1
+    assert failures == 4  # Only the homepage exists in this fake.
+    assert outside not in websites.calls
+
+
+def test_one_candidate_fetch_failure_does_not_erase_another_corroborated_candidate() -> None:
     qualifying = place(
         "qualifying",
         international_phone_number="+1 737-555-1200",
@@ -311,9 +560,119 @@ def test_one_qualifying_site_does_not_override_another_candidate_fetch_failure()
         "512-555-1234"
     )
 
+    assert result.found is True
+    assert result.identity and result.identity.place_id == qualifying.place_id
+    assert any("conservative Places result" in note for note in result.notes)
+
+
+def test_schema_org_identity_can_corroborate_phone_name_and_address_and_extract_legal_name() -> None:
+    candidate = place(international_phone_number="+1 737-555-1200")
+    places = FakePlacesClient(candidate_ids=[candidate.place_id], details={candidate.place_id: candidate})
+    page = WebsitePage(
+        requested_url=candidate.website_uri,
+        final_url=candidate.website_uri,
+        visible_text="",
+        phones=(ObservedWebsitePhone(raw="+1 512-555-1234", normalized="+15125551234"),),
+        structured_identities=(StructuredBusinessIdentity(
+            name="Example Plumbing",
+            legal_name="Example Plumbing LLC",
+            telephone="+1 512-555-1234",
+            address="1 Main St, Austin, TX 78701, USA",
+            source_type="LocalBusiness",
+        ),),
+    )
+    websites = FakeWebsiteClient(pages={candidate.website_uri: page})
+
+    result = IdentityResolver(places, website_client=websites).resolve("512-555-1234")
+
+    assert result.found is True
+    assert result.identity and result.identity.legal_name == "Example Plumbing LLC"
+    observed = result.evidence[-1].observed
+    assert observed["structured_field_source"] == "schema.org JSON-LD"
+    assert observed["structured_legal_name"] == "Example Plumbing LLC"
+    assert observed["canonical_domain"] == "example.test"
+    assert observed["extracted_fields"] == ["name", "telephone", "address"]
+
+
+def test_hidden_places_address_can_use_schema_name_phone_and_legal_name() -> None:
+    candidate = place(
+        international_phone_number="+1 737-555-1200",
+        formatted_address=None,
+        address_components=[],
+        pure_service_area_business=True,
+    )
+    places = FakePlacesClient(candidate_ids=[candidate.place_id], details={candidate.place_id: candidate})
+    page = WebsitePage(
+        requested_url=candidate.website_uri,
+        final_url=candidate.website_uri,
+        visible_text="",
+        phones=(ObservedWebsitePhone(raw="+1 512-555-1234", normalized="+15125551234"),),
+        structured_identities=(StructuredBusinessIdentity(
+            name="Example Plumbing", legal_name="Example Plumbing LLC",
+            telephone="+1 512-555-1234", source_type="Plumber",
+        ),),
+    )
+
+    result = IdentityResolver(places, website_client=FakeWebsiteClient(pages={candidate.website_uri: page})).resolve("512-555-1234")
+
+    assert result.found is True
+    assert result.identity and result.identity.legal_name == "Example Plumbing LLC"
+    assert result.evidence[-1].observed["extracted_fields"] == ["name", "telephone", "legalName"]
+
+
+def test_weak_structured_phone_and_name_without_address_or_legal_name_stays_hypothesis() -> None:
+    candidate = place(
+        international_phone_number="+1 737-555-1200",
+        formatted_address=None,
+        address_components=[],
+    )
+    page = WebsitePage(
+        requested_url=candidate.website_uri,
+        final_url=candidate.website_uri,
+        visible_text="",
+        phones=(ObservedWebsitePhone(raw="+1 512-555-1234", normalized="+15125551234"),),
+        structured_identities=(StructuredBusinessIdentity(
+            name="Example Plumbing", telephone="+1 512-555-1234", source_type="Plumber",
+        ),),
+    )
+
+    result = IdentityResolver(
+        FakePlacesClient(candidate_ids=[candidate.place_id], details={candidate.place_id: candidate}),
+        website_client=FakeWebsiteClient(pages={candidate.website_uri: page}),
+    ).resolve("512-555-1234")
+
     assert result.found is False
     assert result.identity is None
-    assert any("conservative Places result" in note for note in result.notes)
+    assert len(result.candidate_hypotheses) == 1
+
+
+def test_conflicting_structured_legal_names_remain_unresolved() -> None:
+    candidate = place(
+        international_phone_number="+1 737-555-1200",
+        formatted_address=None,
+        address_components=[],
+    )
+    page = WebsitePage(
+        requested_url=candidate.website_uri,
+        final_url=candidate.website_uri,
+        visible_text="Example Plumbing 1 Main St Austin TX 78701",
+        phones=(ObservedWebsitePhone(raw="+1 512-555-1234", normalized="+15125551234"),),
+        structured_identities=(
+            StructuredBusinessIdentity(name="Example Plumbing", legal_name="Example A LLC", telephone="+1 512-555-1234"),
+            StructuredBusinessIdentity(name="Example Plumbing", legal_name="Example B LLC", telephone="+1 512-555-1234"),
+        ),
+    )
+
+    result = IdentityResolver(
+        FakePlacesClient(candidate_ids=[candidate.place_id], details={candidate.place_id: candidate}),
+        website_client=FakeWebsiteClient(pages={candidate.website_uri: page}),
+    ).resolve("512-555-1234")
+
+    assert result.found is False
+    assert result.identity is None
+    assert len(result.candidate_hypotheses) == 1
+    assert result.candidate_hypotheses[0].identity.legal_name is None
+    assert any("Conflicting schema.org legal names" in note for note in result.notes)
 
 
 def test_exact_places_phone_match_does_not_invoke_website_fallback() -> None:

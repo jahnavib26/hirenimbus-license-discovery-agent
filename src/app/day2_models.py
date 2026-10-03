@@ -14,6 +14,20 @@ SearchKeySource = Literal[
     "business_name",
     "owner_principal",
 ]
+SearchKeyOrigin = Literal["base_identity", "registry"]
+
+
+class LicenseNumberEvidence(BaseModel):
+    """A non-authoritative license-number clue found on an established website."""
+
+    raw_text: str
+    normalized_number: str
+    likely_board_id: str
+    license_family: str
+    page_url: str
+    fetched_at: datetime
+    supporting_snippet: str
+    verified_identity_place_id: str | None = None
 
 
 class BoardSelection(BaseModel):
@@ -43,16 +57,22 @@ class BoardSelectionResult(BaseModel):
 
 
 class SearchKey(BaseModel):
-    """A normalized search value with its exact Day 1 provenance."""
+    """A normalized search value with semantic role and separate provenance."""
 
     original_value: str
     normalized_value: str
     source_field: SearchKeySource
+    origin: SearchKeyOrigin = "base_identity"
+    registry_name: str | None = None
+    entity_id: str | None = None
+    source_url: str | None = None
+    registry_role: str | None = None
 
 
 SearchStatus = Literal[
     "ok",
     "not_found",
+    "ambiguous",
     "unreachable",
     "captcha_blocked",
     "skipped",
@@ -81,6 +101,7 @@ class CandidateLicenseRecord(BaseModel):
     source_fields: dict[str, Any] = Field(default_factory=dict)
     evidence_url: str
     source_reference: str | None = None
+    discovery_evidence: list[LicenseNumberEvidence] = Field(default_factory=list)
     fetched_at: datetime
 
 
@@ -92,8 +113,10 @@ class BoardSearchResult(BaseModel):
     jurisdiction: str | None = None
     strategy: str | None = None
     search_status: SearchStatus
+    issue_kind: Literal["unsupported", "ambiguous", "no_safe_adapter"] | None = None
     source_url: str | None = None
     fetched_at: datetime
+    search_keys: list[SearchKey] = Field(default_factory=list)
     candidates: list[CandidateLicenseRecord] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
 
@@ -140,8 +163,10 @@ class Day2BoardResult(BaseModel):
     jurisdiction: str | None = None
     strategy: str | None = None
     search_status: SearchStatus
+    issue_kind: Literal["unsupported", "ambiguous", "no_safe_adapter"] | None = None
     source_url: str | None = None
     fetched_at: datetime
+    search_keys: list[SearchKey] = Field(default_factory=list)
     match_decisions: list[IdentityMatchDecision] = Field(default_factory=list)
     accepted_licenses: list[AcceptedLicenseRecord] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)

@@ -4,7 +4,7 @@
   "categories": [
     {"id": "plumbing", "label": "Plumbing", "aliases": ["plumber", "plumbing contractor", "drain", "rooter", "water heater"]},
     {"id": "electrical", "label": "Electrical", "aliases": ["electrician", "electric", "electrical contractor", "ev charger"]},
-    {"id": "hvac", "label": "HVAC", "aliases": ["heating", "cooling", "air conditioning", "hvac contractor", "furnace", "heat pump"]},
+    {"id": "hvac", "label": "HVAC", "aliases": ["heating", "cooling", "air conditioning", "a/c contractor", "hvac contractor", "furnace", "heat pump"]},
     {"id": "handyman", "label": "Handyman", "aliases": ["handyman", "general handyman", "home repair"]},
     {"id": "roofing", "label": "Roofing", "aliases": ["roofer", "roofing contractor"]},
     {"id": "renovation", "label": "Renovation / General Building", "aliases": ["general contractor", "remodeling", "renovation", "builder"]},
