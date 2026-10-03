@@ -32,16 +32,19 @@ Live data and portals change. Prefer official sources. **Do not bypass CAPTCHAs.
 
 ## Maryland
 
-- **MHIC** public query: https://www.dllr.state.md.us/cgi-bin/ElectronicLicensing/OP_search/OP_search.cgi?calling_app=HIC::HIC_qselect  
-  Often usable for active contractors; may be fragile / rate-limited.
-- MD State Board of Electricians / other trade queries: frequently **CAPTCHA-gated**. If blocked, set `search_status: captcha_blocked` and stop — do not automate CAPTCHA solving.
+- **Electricians** public query: https://www.dllr.state.md.us/cgi-bin/ElectronicLicensing/OP_Search/OP_search.cgi?calling_app=ME::ME_personal_name
+  The name form searches a person's last name and requires a human CAPTCHA before submitting. The adapter records the supplied search keys and stops at the CAPTCHA; it does not submit names or solve the challenge.
+- **MHIC** public query: https://www.dllr.state.md.us/cgi-bin/ElectronicLicensing/OP_Search/OP_search.cgi?calling_app=HIC::HIC_business_name
+  The official business-name form requires a human CAPTCHA before submitting. The adapter records the supplied search keys and stops at the CAPTCHA; it does not submit names or solve the challenge.
+- Official **Plumbing** and **HVACR** name forms are also linked from Maryland Labor's licensing query page and expose personal-last-name searches with a human CAPTCHA gate. They are not currently selected by `board_selection.py`.
 - MD SDAT business entity search (identity step): https://egov.maryland.gov/BusinessExpress/EntitySearch
 
 ## District of Columbia
 
-- DLCP / licensing moving toward **BOSS** (Business One Stop Solution). Start from https://dlcp.dc.gov/ and current BOSS portal links.
-- Corp registration (identity): DC CorpOnline / BOSS entity search.
-- Expect thinner bulk dumps than VA/CA/TX; document whatever you find.
+- Registry enrichment uses the official DLCP Open Data corporate, trade-name, and beneficial-owner layers linked from the DLCP Reading Room. Corporate `FILE_NUMBER` joins to trade-name `INITIAL_FILENUMBER` and beneficial-owner `INITIALFILENUMBER`.
+- Board of Industrial Trades public licensing search: https://govservices.dcra.dc.gov/oplaportal/Home/GetLicenseSearchDetails
+- The narrow automated route covers the current normalized plumbing, electrical, and HVAC/refrigeration categories. Other DC categories remain explicitly unsupported.
+- Authenticated BOSS workflows are not automated.
 
 ## Google Places (identity step)
 

@@ -44,10 +44,18 @@ class GooglePlacesClient:
         self._client = http_client or httpx.Client(timeout=timeout_seconds)
 
     def search_by_phone(self, normalized_phone: str) -> list[str]:
-        place_ids = self._search_text(normalized_phone)
-        if not place_ids:
-            spaced_phone = f"{normalized_phone[:2]} {normalized_phone[2:]}"
-            place_ids.extend(self._search_text(spaced_phone))
+        digits = normalized_phone.removeprefix("+1")
+        queries = (
+            normalized_phone,
+            f"+1 {digits}",
+            f"{digits[:3]}-{digits[3:6]}-{digits[6:]}",
+            f"({digits[:3]}) {digits[3:6]}-{digits[6:]}",
+        )
+        place_ids = [
+            place_id
+            for query in dict.fromkeys(queries)
+            for place_id in self._search_text(query)
+        ]
         return list(dict.fromkeys(place_ids))
 
     def _search_text(self, phone_query: str) -> list[str]:
@@ -104,10 +112,25 @@ class GooglePlacesClient:
     def _request_json(self, method: str, url: str, **kwargs: object) -> dict[str, object]:
         try:
             response = self._client.request(method, url, **kwargs)
-            response.raise_for_status()
+        except httpx.RequestError as exc:
+            raise PlacesLookupError("Google Places transport failure.") from exc
+
+        if not response.is_success:
+            status = response.status_code
+            if status == 403:
+                message = "Google Places access denied (HTTP 403)."
+            elif status == 429:
+                message = "Google Places rate limited (HTTP 429)."
+            elif 500 <= status <= 599:
+                message = f"Google Places service error (HTTP {status})."
+            else:
+                message = f"Google Places HTTP error (HTTP {status})."
+            raise PlacesLookupError(message)
+
+        try:
             data = response.json()
-        except (httpx.HTTPError, ValueError) as exc:
-            raise PlacesLookupError("Google Places request failed.") from exc
+        except ValueError as exc:
+            raise PlacesLookupError("Google Places returned invalid JSON.") from exc
         if not isinstance(data, dict):
             raise PlacesLookupError("Google Places returned an invalid response.")
         return data

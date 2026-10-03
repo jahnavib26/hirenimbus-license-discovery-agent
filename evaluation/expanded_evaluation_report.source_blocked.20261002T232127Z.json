@@ -1,0 +1,1501 @@
+{
+  "generated_at": "2026-10-02T23:21:27.542277+00:00",
+  "input_file": "data/phones.csv",
+  "ground_truth_file": "data/evaluation_ground_truth_expanded.json",
+  "methodology": {
+    "pipeline_call": "find_licenses(phone, refresh=False, market_hint=row.market_hint)",
+    "manual_verification_available": true,
+    "primary_metric_unit": "unique normalized valid phone",
+    "unknown_cases_excluded_from_correctness_precision_recall": true,
+    "cache_note": "The run starts with an isolated cache; duplicate normalized phones may produce cache hits during the same run."
+  },
+  "cases": [
+    {
+      "case_id": "P01",
+      "original_phone": "(703) 997-2894",
+      "market_hint": "DC Metro",
+      "input_notes": "Public main line from company website (large multi-trade). Expect identity hit.",
+      "normalized_phone": "+17039972894",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No manually established identity ground truth was supplied."
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P02",
+      "original_phone": "703-752-1251",
+      "market_hint": "DC Metro",
+      "input_notes": "Public main line from company website (HVAC/plumbing/electrical).",
+      "normalized_phone": "+17037521251",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "John C. Flood",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P03",
+      "original_phone": "(703) 477-9016",
+      "market_hint": "DC Metro",
+      "input_notes": "Public main line from company website (plumbing).",
+      "normalized_phone": "+17034779016",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "Brownlee Plumbing LLC",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P04",
+      "original_phone": "301.388.8855",
+      "market_hint": "DC Metro",
+      "input_notes": "Public listing for an electrical company (Upper Marlboro / DC Metro).",
+      "normalized_phone": "+13013888855",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "PowerWorks LLC",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P05",
+      "original_phone": "202-351-6878",
+      "market_hint": "DC Metro",
+      "input_notes": "Public main line from company website (plumbing/HVAC).",
+      "normalized_phone": "+12023516878",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "JM Plumbing & Heating",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P06",
+      "original_phone": "+1 (737) 381-7024",
+      "market_hint": "Austin",
+      "input_notes": "Public main line from company website (electrical). Format variant with +1.",
+      "normalized_phone": "+17373817024",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "FDL Electric",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P07",
+      "original_phone": "512-537-8767",
+      "market_hint": "Austin",
+      "input_notes": "Public main line from company website (plumbing).",
+      "normalized_phone": "+15125378767",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No manually established identity ground truth was supplied."
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P08",
+      "original_phone": "(512) 943-7070",
+      "market_hint": "Austin",
+      "input_notes": "Public main line from company website (plumbing/HVAC/electrical).",
+      "normalized_phone": "+15129437070",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "Abacus Plumbing, Air Conditioning & Electrical",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P09",
+      "original_phone": "5124881120",
+      "market_hint": "Austin",
+      "input_notes": "Digits-only variant of a public company main line (HVAC/plumbing/electrical).",
+      "normalized_phone": "+15124881120",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "Fox Service Company",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P10",
+      "original_phone": "512-524-3443",
+      "market_hint": "Austin",
+      "input_notes": "Public main line from company website (plumbing franchise).",
+      "normalized_phone": "+15125243443",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "Benjamin Franklin Plumbing of Austin",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P11",
+      "original_phone": "512-298-4916",
+      "market_hint": "Austin",
+      "input_notes": "Public main line from company website (plumbing).",
+      "normalized_phone": "+15122984916",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "Mr. Rooter Plumbing of Austin",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P12",
+      "original_phone": "(415) 843-2900",
+      "market_hint": "SF Bay",
+      "input_notes": "Public main line from company website (plumbing/HVAC/electrical).",
+      "normalized_phone": "+14158432900",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "Cabrillo Plumbing, Heating & Air",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P13",
+      "original_phone": "650-343-4700",
+      "market_hint": "SF Bay",
+      "input_notes": "Second public main line from same company as P12 (Peninsula).",
+      "normalized_phone": "+16503434700",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "Cabrillo Plumbing, Heating & Air",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P14",
+      "original_phone": "415-226-4125",
+      "market_hint": "SF Bay",
+      "input_notes": "Public main line from company website (HVAC/plumbing).",
+      "normalized_phone": "+14152264125",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "TRIO Heating, Air & Plumbing",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P15",
+      "original_phone": "925-503-4838",
+      "market_hint": "SF Bay",
+      "input_notes": "Public directory listing for a plumbing contractor (Antioch area).",
+      "normalized_phone": "+19255034838",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "Prime Plumbing and Drain, Inc.",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P16",
+      "original_phone": "415-656-2130",
+      "market_hint": "SF Bay",
+      "input_notes": "Public main line from company website (plumbing).",
+      "normalized_phone": "+14156562130",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "Roto-Rooter San Francisco",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P17",
+      "original_phone": "7034779016",
+      "market_hint": "DC Metro",
+      "input_notes": "Digits-only duplicate of P03 \u2014 same identity expected after normalization.",
+      "normalized_phone": "+17034779016",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false,
+      "duplicate_of_case_id": "P03"
+    },
+    {
+      "case_id": "P18",
+      "original_phone": "+15125378767",
+      "market_hint": "Austin",
+      "input_notes": "E.164-ish duplicate of P07 \u2014 same identity expected.",
+      "normalized_phone": "+15125378767",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false,
+      "duplicate_of_case_id": "P07"
+    },
+    {
+      "case_id": "P19",
+      "original_phone": "1-415-843-2900",
+      "market_hint": "SF Bay",
+      "input_notes": "Leading-1 duplicate of P12 \u2014 same identity expected.",
+      "normalized_phone": "+14158432900",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false,
+      "duplicate_of_case_id": "P12"
+    },
+    {
+      "case_id": "P20",
+      "original_phone": "(202) 555-0100",
+      "market_hint": "DC Metro",
+      "input_notes": "Reserved 555-01xx style \u2014 expect no legitimate GBP / no licenses.",
+      "normalized_phone": null,
+      "invalid_input": true,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "invalid_input",
+        "message": "The input uses the reserved fictional 555-01xx range."
+      },
+      "pipeline_notes": [
+        "Invalid input was not cached."
+      ],
+      "identity_notes": [
+        "Input validation failed before any external lookup."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false
+    },
+    {
+      "case_id": "P21",
+      "original_phone": "512-555-0199",
+      "market_hint": "Austin",
+      "input_notes": "Reserved 555-01xx style \u2014 expect no legitimate GBP / no licenses.",
+      "normalized_phone": null,
+      "invalid_input": true,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "invalid_input",
+        "message": "The input uses the reserved fictional 555-01xx range."
+      },
+      "pipeline_notes": [
+        "Invalid input was not cached."
+      ],
+      "identity_notes": [
+        "Input validation failed before any external lookup."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false
+    },
+    {
+      "case_id": "P22",
+      "original_phone": "415-555-0142",
+      "market_hint": "SF Bay",
+      "input_notes": "Reserved 555-01xx style \u2014 expect no legitimate GBP / no licenses.",
+      "normalized_phone": null,
+      "invalid_input": true,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "invalid_input",
+        "message": "The input uses the reserved fictional 555-01xx range."
+      },
+      "pipeline_notes": [
+        "Invalid input was not cached."
+      ],
+      "identity_notes": [
+        "Input validation failed before any external lookup."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false
+    },
+    {
+      "case_id": "P23",
+      "original_phone": "000-000-0000",
+      "market_hint": null,
+      "input_notes": "Invalid \u2014 normalize should reject or mark invalid.",
+      "normalized_phone": null,
+      "invalid_input": true,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "invalid_input",
+        "message": "Only valid U.S. phone numbers are supported."
+      },
+      "pipeline_notes": [
+        "Invalid input was not cached."
+      ],
+      "identity_notes": [
+        "Input validation failed before any external lookup."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false
+    },
+    {
+      "case_id": "P24",
+      "original_phone": "12345",
+      "market_hint": null,
+      "input_notes": "Too short \u2014 invalid.",
+      "normalized_phone": null,
+      "invalid_input": true,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "invalid_input",
+        "message": "Only valid U.S. phone numbers are supported."
+      },
+      "pipeline_notes": [
+        "Invalid input was not cached."
+      ],
+      "identity_notes": [
+        "Input validation failed before any external lookup."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false
+    },
+    {
+      "case_id": "P25",
+      "original_phone": "(999) 999-9999",
+      "market_hint": null,
+      "input_notes": "Implausible \u2014 expect found=false or very low confidence.",
+      "normalized_phone": null,
+      "invalid_input": true,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "invalid_input",
+        "message": "Only valid U.S. phone numbers are supported."
+      },
+      "pipeline_notes": [
+        "Invalid input was not cached."
+      ],
+      "identity_notes": [
+        "Input validation failed before any external lookup."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false
+    },
+    {
+      "case_id": "P26",
+      "original_phone": "703-997-2894 x0",
+      "market_hint": "DC Metro",
+      "input_notes": "Same as P01 with junk extension noise \u2014 test sanitization.",
+      "normalized_phone": "+17039972894",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false,
+      "duplicate_of_case_id": "P01"
+    },
+    {
+      "case_id": "P27",
+      "original_phone": "tel:+17034779016",
+      "market_hint": "DC Metro",
+      "input_notes": "URI-ish duplicate of P03.",
+      "normalized_phone": "+17034779016",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false,
+      "duplicate_of_case_id": "P03"
+    },
+    {
+      "case_id": "P28",
+      "original_phone": " (512) 400-0749 ",
+      "market_hint": "Austin",
+      "input_notes": "Public secondary/emergency line from same company family as P08 \u2014 may resolve to related identity.",
+      "normalized_phone": "+15124000749",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "license_number_evidence": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "lookup_failure",
+        "message": "Google Places request failed."
+      },
+      "pipeline_notes": [],
+      "identity_notes": [
+        "The external lookup failed; this is not a no-result outcome."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "Abacus Plumbing, Air Conditioning & Electrical",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    }
+  ],
+  "aggregate": {
+    "total_input_cases": 28,
+    "pipeline_results_returned": 28,
+    "evaluation_execution_errors": 0,
+    "valid_input_cases": 22,
+    "invalid_input_cases": 6,
+    "unique_normalized_phones": 17,
+    "identity_found": {
+      "false": 28
+    },
+    "identity_confidence": {
+      "low": 28
+    },
+    "pipeline_status": {
+      "failed": 28
+    },
+    "cache_status": {
+      "miss_not_saved": 28
+    },
+    "board_search_status": {},
+    "board_result_count": 0,
+    "cases_with_accepted_licenses": 0,
+    "accepted_license_count": 0,
+    "accepted_license_match_confidence": {},
+    "verified_metrics": {
+      "identity_coverage_yield": {
+        "value": 0.0,
+        "resolved_unique_phones": 0,
+        "unique_valid_phone_denominator": 17,
+        "resolved_case_ids": []
+      },
+      "identity_accuracy": {
+        "value": null,
+        "correct_predictions": 0,
+        "judgeable_prediction_denominator": 0,
+        "judgeable_case_ids": [],
+        "incorrect_case_ids": [],
+        "coverage_miss_case_ids": [
+          "P02",
+          "P03",
+          "P04",
+          "P05",
+          "P06",
+          "P08",
+          "P09",
+          "P10",
+          "P11",
+          "P12",
+          "P13",
+          "P14",
+          "P15",
+          "P16",
+          "P28"
+        ],
+        "unknown_ground_truth_case_ids": [
+          "P01",
+          "P07"
+        ]
+      },
+      "license_precision": {
+        "value": null,
+        "verified_correct_predictions": 0,
+        "judgeable_prediction_denominator": 0,
+        "unverified_prediction_count": 0,
+        "reason_if_unavailable": "No judgeable accepted-license predictions were produced."
+      },
+      "license_recall": {
+        "value": 0.0,
+        "recovered_verified_licenses": 0,
+        "verified_reference_denominator": 23,
+        "reference_set": [
+          {
+            "global_id": "DPOR:2705019835",
+            "case_ids": [
+              "P02"
+            ],
+            "board_id": "DPOR",
+            "license_number": "2705019835"
+          },
+          {
+            "global_id": "DC_INDUSTRIAL_TRADES:PC502",
+            "case_ids": [
+              "P02"
+            ],
+            "board_id": "DC_INDUSTRIAL_TRADES",
+            "license_number": "PC502"
+          },
+          {
+            "global_id": "DC_INDUSTRIAL_TRADES:RC770",
+            "case_ids": [
+              "P02"
+            ],
+            "board_id": "DC_INDUSTRIAL_TRADES",
+            "license_number": "RC770"
+          },
+          {
+            "global_id": "DPOR:2710061674",
+            "case_ids": [
+              "P03"
+            ],
+            "board_id": "DPOR",
+            "license_number": "2710061674"
+          },
+          {
+            "global_id": "DPOR:2705159268",
+            "case_ids": [
+              "P03"
+            ],
+            "board_id": "DPOR",
+            "license_number": "2705159268"
+          },
+          {
+            "global_id": "MD_ELECTRICIANS:14003",
+            "case_ids": [
+              "P04"
+            ],
+            "board_id": "MD_ELECTRICIANS",
+            "license_number": "14003"
+          },
+          {
+            "global_id": "DC_INDUSTRIAL_TRADES:ECC40000308",
+            "case_ids": [
+              "P05"
+            ],
+            "board_id": "DC_INDUSTRIAL_TRADES",
+            "license_number": "ECC40000308"
+          },
+          {
+            "global_id": "DC_INDUSTRIAL_TRADES:PC1000776",
+            "case_ids": [
+              "P05"
+            ],
+            "board_id": "DC_INDUSTRIAL_TRADES",
+            "license_number": "PC1000776"
+          },
+          {
+            "global_id": "DC_INDUSTRIAL_TRADES:RC902397",
+            "case_ids": [
+              "P05"
+            ],
+            "board_id": "DC_INDUSTRIAL_TRADES",
+            "license_number": "RC902397"
+          },
+          {
+            "global_id": "TDLR:39935",
+            "case_ids": [
+              "P06"
+            ],
+            "board_id": "TDLR",
+            "license_number": "39935"
+          },
+          {
+            "global_id": "TDLR:441136",
+            "case_ids": [
+              "P06"
+            ],
+            "board_id": "TDLR",
+            "license_number": "441136"
+          },
+          {
+            "global_id": "TSBPE:20628",
+            "case_ids": [
+              "P08",
+              "P28"
+            ],
+            "board_id": "TSBPE",
+            "license_number": "20628"
+          },
+          {
+            "global_id": "TDLR:30557",
+            "case_ids": [
+              "P08",
+              "P28"
+            ],
+            "board_id": "TDLR",
+            "license_number": "30557"
+          },
+          {
+            "global_id": "TDLR:TACLA00135747C",
+            "case_ids": [
+              "P08",
+              "P28"
+            ],
+            "board_id": "TDLR",
+            "license_number": "TACLA00135747C"
+          },
+          {
+            "global_id": "TDLR:33423",
+            "case_ids": [
+              "P09"
+            ],
+            "board_id": "TDLR",
+            "license_number": "33423"
+          },
+          {
+            "global_id": "TDLR:TACLB00112806E",
+            "case_ids": [
+              "P09"
+            ],
+            "board_id": "TDLR",
+            "license_number": "TACLB00112806E"
+          },
+          {
+            "global_id": "TSBPE:38471",
+            "case_ids": [
+              "P09"
+            ],
+            "board_id": "TSBPE",
+            "license_number": "38471"
+          },
+          {
+            "global_id": "TSBPE:15007",
+            "case_ids": [
+              "P10"
+            ],
+            "board_id": "TSBPE",
+            "license_number": "15007"
+          },
+          {
+            "global_id": "TSBPE:45226",
+            "case_ids": [
+              "P11"
+            ],
+            "board_id": "TSBPE",
+            "license_number": "45226"
+          },
+          {
+            "global_id": "CSLB:629538",
+            "case_ids": [
+              "P12",
+              "P13"
+            ],
+            "board_id": "CSLB",
+            "license_number": "629538"
+          },
+          {
+            "global_id": "CSLB:1061107",
+            "case_ids": [
+              "P14"
+            ],
+            "board_id": "CSLB",
+            "license_number": "1061107"
+          },
+          {
+            "global_id": "CSLB:1103922",
+            "case_ids": [
+              "P15"
+            ],
+            "board_id": "CSLB",
+            "license_number": "1103922"
+          },
+          {
+            "global_id": "CSLB:806952",
+            "case_ids": [
+              "P16"
+            ],
+            "board_id": "CSLB",
+            "license_number": "806952"
+          }
+        ]
+      },
+      "secondary_row_level_identity_coverage": {
+        "value": 0.0,
+        "resolved_valid_rows": 0,
+        "valid_row_denominator": 22,
+        "note": "Secondary only; formatting duplicates are included."
+      }
+    },
+    "phase2_metrics": {
+      "known_license_cases": 15,
+      "known_license_case_ids": [
+        "P02",
+        "P03",
+        "P04",
+        "P05",
+        "P06",
+        "P08",
+        "P28",
+        "P09",
+        "P10",
+        "P11",
+        "P12",
+        "P13",
+        "P14",
+        "P15",
+        "P16"
+      ],
+      "known_licenses": 23,
+      "accepted_license_predictions": 0,
+      "accepted_verified_licenses": 0,
+      "precision": null,
+      "recall": 0.0,
+      "remaining_verified_licenses_not_recovered": 23,
+      "recovered_through_registry_legal_name": 0,
+      "recovered_through_official_dba_trade_fictitious_name": 0,
+      "recovered_through_explicit_registry_principal": 0,
+      "registry_recovery_case_ids": {
+        "registry_legal_name": [],
+        "official_dba_trade_fictitious_name": [],
+        "explicit_registry_principal": []
+      },
+      "tx_outside_phase2_registry_expansion": {
+        "known_license_cases": 0,
+        "known_license_case_ids": [],
+        "known_licenses": 0,
+        "note": "Texas board behavior is preserved and no Texas registry enrichment is run."
+      },
+      "source_outcomes_primary_unique_valid_cases": {
+        "not_found": {
+          "count": 0,
+          "case_ids": []
+        },
+        "ambiguous": {
+          "count": 0,
+          "case_ids": []
+        },
+        "captcha_blocked": {
+          "count": 0,
+          "case_ids": []
+        },
+        "unreachable": {
+          "count": 0,
+          "case_ids": []
+        },
+        "skipped": {
+          "count": 0,
+          "case_ids": []
+        },
+        "unsupported": {
+          "count": 0,
+          "case_ids": []
+        }
+      }
+    },
+    "expanded_license_metrics": {
+      "unique_valid_phone_denominator": 17,
+      "global_verified_license_denominator": 23,
+      "globally_unique_accepted_predictions": 0,
+      "verified_correct_predictions": 0,
+      "verified_incorrect_predictions": 0,
+      "unverified_predictions": 0,
+      "judgeable_prediction_denominator": 0,
+      "precision": null,
+      "recall": 0.0,
+      "recovered_license_ids": [],
+      "missed_license_ids": [
+        "DPOR:2705019835",
+        "DC_INDUSTRIAL_TRADES:PC502",
+        "DC_INDUSTRIAL_TRADES:RC770",
+        "DPOR:2710061674",
+        "DPOR:2705159268",
+        "MD_ELECTRICIANS:14003",
+        "DC_INDUSTRIAL_TRADES:ECC40000308",
+        "DC_INDUSTRIAL_TRADES:PC1000776",
+        "DC_INDUSTRIAL_TRADES:RC902397",
+        "TDLR:39935",
+        "TDLR:441136",
+        "TSBPE:20628",
+        "TDLR:30557",
+        "TDLR:TACLA00135747C",
+        "TDLR:33423",
+        "TDLR:TACLB00112806E",
+        "TSBPE:38471",
+        "TSBPE:15007",
+        "TSBPE:45226",
+        "CSLB:629538",
+        "CSLB:1061107",
+        "CSLB:1103922",
+        "CSLB:806952"
+      ],
+      "verified_correct_prediction_ids": [],
+      "verified_incorrect_prediction_ids": [],
+      "unverified_prediction_ids": [],
+      "precision_note": "Precision uses only manually judgeable predictions; out-of-set predictions are unverified, not presumed false."
+    },
+    "benchmark_comparison": {
+      "historical_phase1": {
+        "recovered_verified_licenses": 1,
+        "verified_license_denominator": 8
+      },
+      "historical_phase2": {
+        "recovered_verified_licenses": 1,
+        "verified_license_denominator": 8
+      },
+      "current_expanded_benchmark": {
+        "recovered_verified_licenses": 0,
+        "verified_license_denominator": 23
+      },
+      "note": "Historical Phase 1 and Phase 2 retain their original eight-license denominators."
+    }
+  },
+  "run_metadata": {
+    "benchmark_status": "source_blocked",
+    "comparable": false,
+    "source_health": {
+      "google_places": {
+        "status": "unavailable",
+        "valid_identity_inputs": 22,
+        "identity_lookup_failures": 22,
+        "failure_classes": {
+          "provider_failure": 22
+        }
+      },
+      "board_evaluations": 0
+    }
+  }
+}

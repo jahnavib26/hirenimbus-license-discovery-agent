@@ -50,12 +50,21 @@ class BusinessIdentity(BaseModel):
     normalized_categories: list[str] = Field(default_factory=list)
 
 
+class IdentityCandidateHypothesis(BaseModel):
+    """Places phone-search candidate awaiting official registry corroboration."""
+
+    identity: BusinessIdentity
+    evidence: list[Evidence] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
 class IdentityLookupResult(BaseModel):
     found: bool
     confidence: Confidence
     input_phone: NormalizedPhone | None = None
     identity: BusinessIdentity | None = None
     evidence: list[Evidence] = Field(default_factory=list)
+    candidate_hypotheses: list[IdentityCandidateHypothesis] = Field(default_factory=list)
     assessments: list[CandidateAssessment] = Field(default_factory=list)
     notes: list[str] = Field(default_factory=list)
     error: LookupError | None = None

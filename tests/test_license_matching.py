@@ -11,6 +11,8 @@ from app.license_matching import (
     normalize_license_status,
 )
 from app.models import BusinessIdentity
+from app.registry_models import RegistryEnrichmentResult, RegistryEvidence, RegistryName
+from app.search_keys import generate_expanded_search_keys
 
 
 FETCHED_AT = datetime(2026, 9, 27, 16, 0, tzinfo=timezone.utc)
@@ -424,3 +426,189 @@ def test_license_status_normalization_preserves_unknowns(
     raw_status: str | None, expected: str | None
 ) -> None:
     assert normalize_license_status(raw_status) == expected
+
+
+def test_final_match_consumes_same_expanded_keys_as_retrieval() -> None:
+    business = identity(business_name="Places Name")
+    registry = RegistryEnrichmentResult(
+        jurisdiction="TX", registry="TX SOS", status="ok",
+        established_entity_id="entity-1", established_entity_name="Registry Legal",
+        legal_names=[RegistryName(value="Registry Legal", kind="legal_name", source_name="TX SOS")],
+        evidence=[RegistryEvidence(kind="exact_place_name", source_name="TX SOS")],
+    )
+    keys = generate_expanded_search_keys(business, [registry])
+    board_result = BoardSearchResult(
+        board_id="TEST", board_name="Test", strategy="test", search_status="ok",
+        fetched_at=FETCHED_AT, candidates=[candidate(holder_name="Registry Legal")],
+    )
+    result = assemble_day2_result(business, [board_result], search_keys=keys)
+    assert result.accepted_licenses[0].matched_identity_value == "Registry Legal"
+
+
+def test_official_registry_principal_can_match_compatible_tradesman_exactly() -> None:
+    business = identity(business_name="Example Plumbing", states=["TX"], normalized_categories=["plumbing"])
+    registry = RegistryEnrichmentResult(
+        jurisdiction="TX", registry="TX SOS", status="ok",
+        established_entity_id="entity-1", established_entity_name="Example Plumbing",
+        url="https://registry.example/entity/entity-1",
+        evidence=[RegistryEvidence(
+            kind="exact_legal_name", source_name="TX SOS",
+            source_url="https://registry.example/entity/entity-1",
+            entity_id="entity-1", observed={"legal_name": "Example Plumbing"},
+        )],
+        principals=[RegistryName(
+            value="Ada Owner", kind="principal", role="manager", source_name="TX SOS",
+            source_url="https://registry.example/entity/entity-1", entity_id="entity-1",
+        )],
+    )
+    tradesman = candidate(
+        holder_name="ADA OWNER", holder_name_role="person", state="TX",
+        raw_license_type="Plumbing Contractor",
+    )
+    decision = match_candidate(business, tradesman, registry_results=[registry])
+    assert decision.accepted is True
+    assert decision.match_confidence == "medium"
+    assert decision.matched_identity_field == "owner_principal"
+    assert "official_registry_principal_role" in decision.supporting_evidence
+
+
+def test_registry_principal_matches_after_exact_dba_establishment() -> None:
+    business = identity(
+        business_name="Main Street Plumbing",
+        states=["MD"],
+        normalized_categories=["plumbing"],
+    )
+    registry_url = "https://egov.maryland.gov/BusinessExpress/EntitySearch"
+    registry = RegistryEnrichmentResult(
+        jurisdiction="MD",
+        registry="Maryland SDAT",
+        status="ok",
+        url=registry_url,
+        established_entity_id="MD-ENTITY-7",
+        established_entity_name="Harbor Mechanical Holdings LLC",
+        legal_names=[RegistryName(
+            value="Harbor Mechanical Holdings LLC",
+            kind="legal_name",
+            source_name="Maryland SDAT",
+            source_url=registry_url,
+            entity_id="MD-ENTITY-7",
+        )],
+        dbas=[RegistryName(
+            value="Main Street Plumbing",
+            kind="dba",
+            role="current trade name",
+            source_name="Maryland SDAT",
+            source_url=registry_url,
+            entity_id="MD-ENTITY-7",
+        )],
+        principals=[RegistryName(
+            value="Morgan Manager",
+            kind="principal",
+            role="Manager",
+            source_name="Maryland SDAT",
+            source_url=registry_url,
+            entity_id="MD-ENTITY-7",
+        )],
+        evidence=[RegistryEvidence(
+            kind="exact_trade_name_relationship",
+            source_name="Maryland SDAT",
+            source_url=registry_url,
+            entity_id="MD-ENTITY-7",
+            observed={"Trade Name": "Main Street Plumbing", "Status": "Active"},
+        )],
+    )
+    tradesman = candidate(
+        holder_name="MORGAN MANAGER",
+        holder_name_role="person",
+        state="MD",
+        raw_license_type="Master Plumber",
+    )
+
+    decision = match_candidate(business, tradesman, registry_results=[registry])
+
+    assert decision.accepted is True
+    assert decision.matched_identity_field == "owner_principal"
+    assert "registry_entity_established_by_exact_trade_name_relationship" in decision.supporting_evidence
+
+
+@pytest.mark.parametrize(
+    ("principal_name", "principal_role", "expected_accepted"),
+    [
+        ("Unrelated Person", "Manager", False),
+        ("Morgan Manager", "Registered Agent", False),
+    ],
+)
+def test_registry_dba_establishment_does_not_accept_unrelated_or_agent_person(
+    principal_name: str,
+    principal_role: str,
+    expected_accepted: bool,
+) -> None:
+    business = identity(
+        business_name="Main Street Plumbing",
+        states=["MD"],
+        normalized_categories=["plumbing"],
+    )
+    registry_url = "https://registry.example/entity/MD-ENTITY-7"
+    registry = RegistryEnrichmentResult(
+        jurisdiction="MD",
+        registry="Maryland SDAT",
+        status="ok",
+        url=registry_url,
+        established_entity_id="MD-ENTITY-7",
+        established_entity_name="Harbor Mechanical Holdings LLC",
+        principals=[RegistryName(
+            value=principal_name,
+            kind="principal",
+            role=principal_role,
+            source_name="Maryland SDAT",
+            source_url=registry_url,
+            entity_id="MD-ENTITY-7",
+        )],
+        evidence=[RegistryEvidence(
+            kind="exact_trade_name_relationship",
+            source_name="Maryland SDAT",
+            source_url=registry_url,
+            entity_id="MD-ENTITY-7",
+            observed={"Trade Name": "Main Street Plumbing", "Status": "Active"},
+        )],
+    )
+    tradesman = candidate(
+        holder_name="MORGAN MANAGER",
+        holder_name_role="person",
+        state="MD",
+        raw_license_type="Master Plumber",
+    )
+
+    decision = match_candidate(business, tradesman, registry_results=[registry])
+
+    assert decision.accepted is expected_accepted
+
+
+def test_registered_agent_and_ambiguous_duplicate_person_records_do_not_qualify() -> None:
+    business = identity(business_name="Example Plumbing", states=["TX"], normalized_categories=["plumbing"])
+    registry = RegistryEnrichmentResult(
+        jurisdiction="TX", registry="TX SOS", status="ok",
+        established_entity_id="entity-1", established_entity_name="Example Plumbing",
+        url="https://registry.example/entity/entity-1",
+        evidence=[RegistryEvidence(
+            kind="exact_legal_name", source_name="TX SOS",
+            source_url="https://registry.example/entity/entity-1",
+            entity_id="entity-1", observed={"legal_name": "Example Plumbing"},
+        )],
+        principals=[RegistryName(
+            value="Ada Owner", kind="principal", role="registered agent",
+            source_name="TX SOS", source_url="https://registry.example/entity/entity-1",
+            entity_id="entity-1",
+        )],
+    )
+    tradesman = candidate(holder_name="Ada Owner", holder_name_role="person", state="TX", raw_license_type="Plumbing Contractor")
+    assert not match_candidate(business, tradesman, registry_results=[registry]).accepted
+    manager_registry = registry.model_copy(update={
+        "principals": [RegistryName(
+            value="Ada Owner", kind="principal", role="manager", source_name="TX SOS",
+            source_url="https://registry.example/entity/entity-1", entity_id="entity-1",
+        )]
+    })
+    duplicate = candidate(board_id="TEST2", holder_name="ADA OWNER", holder_name_role="person", state="TX", raw_license_type="Plumbing Contractor")
+    decision = match_candidate(business, tradesman, registry_results=[manager_registry], peer_candidates=[duplicate])
+    assert decision.accepted is False

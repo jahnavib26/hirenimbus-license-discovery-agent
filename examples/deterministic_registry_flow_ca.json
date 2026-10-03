@@ -1,0 +1,26 @@
+{
+  "artifact_kind": "fixture_injected_deterministic_demonstration",
+  "disclaimer": "Fixture/injected demonstration; not a live registry success; not counted in evaluation.",
+  "source_test": "tests/test_ca_integration.py::test_ca_registry_legal_name_reaches_cslb_and_final_matching",
+  "base_identity": {
+    "business_name": "Example Builders",
+    "address": "1 Main St, Sacramento, CA 95814",
+    "place_id": "ca-place-1"
+  },
+  "established_registry_entity": {
+    "registry": "California Secretary of State bizfile Online",
+    "entity_id": "SYNTHCA001",
+    "legal_name": "Example Builders LLC",
+    "establishment_basis": "injected manual official-source-shaped evidence with exact business address"
+  },
+  "resulting_search_keys": [
+    {"value": "Example Builders", "origin": "base_identity", "source_field": "business_name"},
+    {"value": "Example Builders LLC", "origin": "registry", "source_field": "legal_name", "entity_id": "SYNTHCA001"},
+    {"value": "Opal Officer", "origin": "registry", "source_field": "owner_principal", "registry_role": "officer", "entity_id": "SYNTHCA001"},
+    {"value": "Dana Director", "origin": "registry", "source_field": "owner_principal", "registry_role": "director", "entity_id": "SYNTHCA001"},
+    {"value": "Mina Member", "origin": "registry", "source_field": "owner_principal", "registry_role": "member", "entity_id": "SYNTHCA001"},
+    {"value": "Mara Manager", "origin": "registry", "source_field": "owner_principal", "registry_role": "manager", "entity_id": "SYNTHCA001"}
+  ],
+  "board_request": {"board_id": "CSLB", "strategy": "cslb_license_master"},
+  "final_decision": {"accepted": true, "license_number": "123456", "matched_identity_field": "legal_name", "matched_identity_value": "Example Builders LLC"}
+}

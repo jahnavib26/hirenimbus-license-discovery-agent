@@ -1,0 +1,60 @@
+{
+  "example_kind": "dated_initial_phase2_live_audit_artifact",
+  "artifact_status": "Historical observation from the initial Phase 2 run; source behavior may differ from the current expanded benchmark.",
+  "not_counted_in_current_evaluation": true,
+  "source_report": "evaluation/phase2_evaluation_report.json",
+  "case_id": "P03",
+  "base_identity": {
+    "business_name": "Brownlee Plumbing",
+    "address": "7702 Backlick Rd M, Springfield, VA 22150, USA",
+    "place_id": "ChIJV1UVX5Oyt4kRutJgIbYvjLU",
+    "states": ["VA"],
+    "normalized_categories": ["plumbing"]
+  },
+  "registry": {
+    "source": "Virginia SCC Clerk's Information System",
+    "source_url": "https://cis.scc.virginia.gov/EntitySearch/Index",
+    "fetched_at": "2026-10-01T22:43:13.921968Z",
+    "status": "captcha_blocked",
+    "established_entity_id": null,
+    "established_entity_name": null,
+    "entity_established": false,
+    "legal_names": [],
+    "dbas": [],
+    "principals": [],
+    "candidate_establishment_evidence": [],
+    "manual_official_source_evidence_used": false,
+    "notes": [
+      "Virginia SCC CIS requires reCAPTCHA before entity search; no automated search was attempted."
+    ]
+  },
+  "expanded_search_keys": [
+    {
+      "value": "Brownlee Plumbing",
+      "normalized_value": "brownlee plumbing",
+      "semantic_role": "business_name",
+      "origin": "base_identity",
+      "registry": null,
+      "entity_id": null,
+      "source_url": null,
+      "registry_role": null
+    }
+  ],
+  "board_searches": [
+    {
+      "board": "Virginia Department of Professional and Occupational Regulation",
+      "source_url": "https://www.dpor.virginia.gov/RegulantLists",
+      "fetched_at": "2026-10-01T22:43:14.405260+00:00",
+      "status": "unreachable",
+      "retrieved_candidates": [],
+      "notes": ["DPOR regulant list 2705 A contained malformed rows."]
+    }
+  ],
+  "final_decision": {
+    "accepted_licenses": [],
+    "outcome": "no_candidate_accepted",
+    "pipeline_status": "partial",
+    "rationale": "SCC name search required reCAPTCHA and DPOR could not be searched reliably. The base key still reached the board path; no unlicensed conclusion is made.",
+    "provenance": "Direct live pipeline observation recorded in evaluation/phase2_evaluation_report.json; no synthetic fixture or manual registry capture was used."
+  }
+}

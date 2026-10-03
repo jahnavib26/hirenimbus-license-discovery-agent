@@ -1,7 +1,10 @@
 import pytest
 
 from app.models import BusinessIdentity
-from app.search_keys import generate_search_keys, normalize_search_name
+from datetime import datetime, timezone
+
+from app.registry_models import RegistryEnrichmentResult, RegistryEvidence, RegistryName
+from app.search_keys import generate_expanded_search_keys, generate_search_keys, normalize_search_name
 
 
 def identity(**names: str | None) -> BusinessIdentity:
@@ -69,3 +72,29 @@ def test_original_search_value_is_preserved_exactly() -> None:
 
     assert key.original_value == original
     assert key.normalized_value == "example sons inc"
+
+
+def test_expanded_keys_include_only_established_registry_names_and_keep_people_last() -> None:
+    result = RegistryEnrichmentResult(
+        jurisdiction="TX", registry="TX SOS", status="ok",
+        fetched_at=datetime.now(timezone.utc), established_entity_id="123",
+        established_entity_name="Example Plumbing LLC",
+        legal_names=[RegistryName(value="Example Plumbing LLC", kind="legal_name", source_name="TX SOS")],
+        dbas=[RegistryName(value="Example Pipe", kind="dba", source_name="TX SOS")],
+        principals=[RegistryName(value="Ada Owner", kind="principal", role="manager", source_name="TX SOS")],
+        evidence=[RegistryEvidence(kind="exact_name", source_name="TX SOS")],
+    )
+    unestablished = RegistryEnrichmentResult(
+        jurisdiction="MD", registry="MD SDAT", status="ambiguous",
+        legal_names=[RegistryName(value="Wrong Name", kind="legal_name", source_name="MD SDAT")],
+    )
+    keys = generate_expanded_search_keys(
+        identity(business_name="Places Name", legal_name="Base Legal", dba="Base DBA", owner_principal="Base Person"),
+        [result, unestablished],
+    )
+    assert [key.original_value for key in keys] == [
+        "Base Legal", "Base DBA", "Places Name", "Example Plumbing LLC", "Example Pipe", "Base Person", "Ada Owner"
+    ]
+    assert keys[3].origin == "registry"
+    assert keys[3].entity_id == "123"
+    assert keys[6].registry_role == "manager"

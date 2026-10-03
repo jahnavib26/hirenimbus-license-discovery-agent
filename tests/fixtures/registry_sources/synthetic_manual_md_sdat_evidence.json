@@ -1,0 +1,27 @@
+{
+  "capture_method": "manual_official_source",
+  "source_url": "https://egov.maryland.gov/BusinessExpress/EntitySearch/BusinessInformation/SYNTHMD01",
+  "lookup_at": "2026-10-01T18:00:00Z",
+  "search_mode": "Business Name",
+  "search_term": "Harbor Home Services",
+  "candidates": [
+    {
+      "Department ID": "SYNTHMD01",
+      "Business Name": "Harbor Renovations LLC",
+      "Business Status": "Active",
+      "Principal Office": "100 Harbor Street, Baltimore, MD 21201",
+      "Trade Names": [
+        {
+          "Trade Name": "Harbor Home Services",
+          "Status": "Active",
+          "Department ID": "SYNTHMD01"
+        }
+      ],
+      "Relationships": [
+        {"Name": "Robin Resident Agent", "Role": "Resident Agent", "Current": true},
+        {"Name": "Olivia Organizer", "Role": "Organizer", "Current": true},
+        {"Name": "Morgan Manager", "Role": "Manager", "Current": true}
+      ]
+    }
+  ]
+}

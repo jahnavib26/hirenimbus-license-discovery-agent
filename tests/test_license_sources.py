@@ -30,30 +30,45 @@ def test_unsupported_or_ambiguous_part_1_mapping_is_skipped() -> None:
     result = LicenseSourceRunner(clock=lambda: fetched_at).search(plan, [])[0]
 
     assert result.search_status == "skipped"
+    assert result.issue_kind == "ambiguous"
     assert result.jurisdiction == "DC"
     assert result.board_id is None
     assert result.candidates == []
     assert result.fetched_at == fetched_at
 
 
-def test_selection_without_a_safe_official_adapter_is_skipped() -> None:
+def test_maryland_no_safe_adapter_result_preserves_search_key_audit() -> None:
     plan = BoardSelectionResult(
         selections=[
             BoardSelection(
                 jurisdiction="MD",
                 board_id="MD_ELECTRICIANS",
                 board_name="Maryland State Board of Electricians",
-                strategy="official_electrician_query",
+                strategy="md_undocumented_query",
                 applicable_categories=["electrical"],
             )
         ]
     )
 
-    result = LicenseSourceRunner().search(plan, [])[0]
+    key = SearchKey(
+        original_value="Expanded Legal Name LLC",
+        normalized_value="expanded legal name llc",
+        source_field="legal_name",
+        origin="registry",
+        registry_name="Maryland SDAT",
+        entity_id="SYNTHMD01",
+        source_url="https://egov.maryland.gov/BusinessExpress/EntitySearch/BusinessInformation/SYNTHMD01",
+    )
+    result = LicenseSourceRunner(
+        adapters={"unrelated_strategy": object()},
+        min_request_interval_seconds=0,
+    ).search(plan, [key])[0]
 
     assert result.search_status == "skipped"
+    assert result.issue_kind == "no_safe_adapter"
     assert result.board_id == "MD_ELECTRICIANS"
     assert result.candidates == []
+    assert result.search_keys == [key]
 
 
 def test_successful_source_results_are_cached_in_process() -> None:

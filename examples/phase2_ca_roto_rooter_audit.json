@@ -1,0 +1,62 @@
+{
+  "example_kind": "dated_initial_phase2_live_audit_artifact",
+  "artifact_status": "Historical observation from the initial Phase 2 run; source behavior may differ from the current expanded benchmark.",
+  "not_counted_in_current_evaluation": true,
+  "source_report": "evaluation/phase2_evaluation_report.json",
+  "case_id": "P16",
+  "base_identity": {
+    "business_name": "Roto-Rooter Plumbing & Water Cleanup",
+    "address": "2873 Mission St #3, San Francisco, CA 94110, USA",
+    "place_id": "ChIJVVVVVamHhYARR_QEw_Qf1D0",
+    "states": ["CA"],
+    "normalized_categories": ["plumbing", "renovation"]
+  },
+  "registry": {
+    "source": "California Secretary of State bizfile Online",
+    "source_url": "https://bizfileonline.sos.ca.gov/",
+    "fetched_at": "2026-10-01T22:43:29.797726Z",
+    "status": "skipped",
+    "established_entity_id": null,
+    "established_entity_name": null,
+    "entity_established": false,
+    "legal_names": [],
+    "dbas": [],
+    "principals": [],
+    "candidate_establishment_evidence": [],
+    "manual_official_source_evidence_used": false,
+    "notes": [
+      "The public bizfile UI was reachable, but no documented unauthenticated entity-search API was configured.",
+      "No UI automation or anti-bot circumvention was attempted.",
+      "County fictitious-business-name filings are outside Phase 2."
+    ]
+  },
+  "expanded_search_keys": [
+    {
+      "value": "Roto-Rooter Plumbing & Water Cleanup",
+      "normalized_value": "roto rooter plumbing water cleanup",
+      "semantic_role": "business_name",
+      "origin": "base_identity",
+      "registry": null,
+      "entity_id": null,
+      "source_url": null,
+      "registry_role": null
+    }
+  ],
+  "board_searches": [
+    {
+      "board": "California Contractors State License Board",
+      "source_url": "https://www.cslb.ca.gov/onlineservices/dataportal/ContractorList",
+      "fetched_at": "2026-10-01T22:43:30.027273+00:00",
+      "status": "unreachable",
+      "retrieved_candidates": [],
+      "notes": ["CSLB did not return its License Master CSV."]
+    }
+  ],
+  "final_decision": {
+    "accepted_licenses": [],
+    "outcome": "no_candidate_accepted",
+    "pipeline_status": "partial",
+    "rationale": "No safe automated SOS entity search was available and the CSLB bulk source did not return a usable file. The Places key still reached CSLB; no unlicensed conclusion is made.",
+    "provenance": "Direct live pipeline observation recorded in evaluation/phase2_evaluation_report.json; no synthetic fixture or manual registry capture was used."
+  }
+}

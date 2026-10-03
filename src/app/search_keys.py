@@ -9,6 +9,8 @@ from typing import Literal
 
 from app.day2_models import SearchKey, SearchKeySource
 from app.models import BusinessIdentity
+from app.registry_models import RegistryEnrichmentResult
+from app.registry_sources import registry_result_is_established
 
 
 _SOURCE_FIELDS: tuple[SearchKeySource, ...] = (
@@ -79,18 +81,88 @@ def name_relationship(
 
 
 def generate_search_keys(identity: BusinessIdentity) -> list[SearchKey]:
-    """Return established Day 1 names in preferred search order."""
+    """Return established base identity names in preferred search order."""
+
+    return _keys_from_identity_fields(identity)
+
+
+def generate_expanded_search_keys(
+    identity: BusinessIdentity,
+    registry_results: list[RegistryEnrichmentResult] | None = None,
+) -> list[SearchKey]:
+    """Combine base and established registry names, business names before people."""
+
+    base = _keys_from_identity_fields(identity)
+    base_business = [key for key in base if key.source_field != "owner_principal"]
+    base_people = [key for key in base if key.source_field == "owner_principal"]
+    registry_business: list[SearchKey] = []
+    registry_people: list[SearchKey] = []
+    for result in registry_results or []:
+        if not registry_result_is_established(result):
+            continue
+        for name in [*result.legal_names, *result.dbas]:
+            source_field: SearchKeySource = "legal_name" if name.kind == "legal_name" else "dba"
+            registry_business.append(_make_key(
+                name.value,
+                source_field,
+                origin="registry",
+                registry_name=name.source_name or result.registry,
+                entity_id=name.entity_id or result.established_entity_id,
+                source_url=name.source_url or result.url,
+                registry_role=name.role,
+            ))
+        for name in result.principals:
+            registry_people.append(_make_key(
+                name.value,
+                "owner_principal",
+                origin="registry",
+                registry_name=name.source_name or result.registry,
+                entity_id=name.entity_id or result.established_entity_id,
+                source_url=name.source_url or result.url,
+                registry_role=name.role,
+            ))
+    return _unique_keys([*base_business, *registry_business, *base_people, *registry_people])
+
+
+def _keys_from_identity_fields(identity: BusinessIdentity) -> list[SearchKey]:
 
     keys: list[SearchKey] = []
     for source_field in _SOURCE_FIELDS:
         original_value = getattr(identity, source_field)
         if original_value is None or not original_value.strip():
             continue
-        keys.append(
-            SearchKey(
-                original_value=original_value,
-                normalized_value=normalize_search_name(original_value),
-                source_field=source_field,
-            )
-        )
+        keys.append(_make_key(original_value, source_field))
     return keys
+
+
+def _make_key(
+    value: str,
+    source_field: SearchKeySource,
+    *,
+    origin: str = "base_identity",
+    registry_name: str | None = None,
+    entity_id: str | None = None,
+    source_url: str | None = None,
+    registry_role: str | None = None,
+) -> SearchKey:
+    return SearchKey(
+        original_value=value,
+        normalized_value=normalize_search_name(value),
+        source_field=source_field,
+        origin=origin,
+        registry_name=registry_name,
+        entity_id=entity_id,
+        source_url=source_url,
+        registry_role=registry_role,
+    )
+
+
+def _unique_keys(keys: list[SearchKey]) -> list[SearchKey]:
+    seen: set[tuple[str, str, str | None]] = set()
+    result: list[SearchKey] = []
+    for key in keys:
+        marker = (key.normalized_value, key.source_field, key.entity_id)
+        if marker not in seen:
+            seen.add(marker)
+            result.append(key)
+    return result

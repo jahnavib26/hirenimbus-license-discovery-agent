@@ -1,0 +1,2093 @@
+{
+  "generated_at": "2026-10-01T22:43:39.888902+00:00",
+  "input_file": "data/phones.csv",
+  "ground_truth_file": "data/evaluation_ground_truth.json",
+  "methodology": {
+    "pipeline_call": "find_licenses(phone, refresh=False)",
+    "manual_verification_available": true,
+    "primary_metric_unit": "unique normalized valid phone",
+    "unknown_cases_excluded_from_correctness_precision_recall": true,
+    "cache_note": "The run starts with an isolated cache; duplicate normalized phones may produce cache hits during the same run."
+  },
+  "cases": [
+    {
+      "case_id": "P01",
+      "original_phone": "(703) 997-2894",
+      "market_hint": "DC Metro",
+      "input_notes": "Public main line from company website (large multi-trade). Expect identity hit.",
+      "normalized_phone": "+17039972894",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "complete",
+      "cache_status": "miss_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "Google Places returned no candidates for the valid phone number."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "F.H. Furr",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P02",
+      "original_phone": "703-752-1251",
+      "market_hint": "DC Metro",
+      "input_notes": "Public main line from company website (HVAC/plumbing/electrical).",
+      "normalized_phone": "+17037521251",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "complete",
+      "cache_status": "miss_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "Candidates were returned, but none had a non-conflicting phone that exactly normalized to the input.",
+        "Search ranking was not treated as proof of identity.",
+        "The first-party website fallback could not safely verify Place ChIJy5J-LhLHt4kRGbS67nl3GEQ; the conservative Places result was retained."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "John C. Flood",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P03",
+      "original_phone": "(703) 477-9016",
+      "market_hint": "DC Metro",
+      "input_notes": "Public main line from company website (plumbing).",
+      "normalized_phone": "+17034779016",
+      "invalid_input": false,
+      "identity_found": true,
+      "identity_confidence": "medium",
+      "business_name": "Brownlee Plumbing",
+      "business_address": "7702 Backlick Rd M, Springfield, VA 22150, USA",
+      "business_states": [
+        "VA"
+      ],
+      "normalized_categories": [
+        "plumbing"
+      ],
+      "identity_place_id": "ChIJV1UVX5Oyt4kRutJgIbYvjLU",
+      "pipeline_status": "partial",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [
+        "DPOR"
+      ],
+      "registry_results": [
+        {
+          "jurisdiction": "VA",
+          "registry": "Virginia SCC Clerk's Information System",
+          "status": "captcha_blocked",
+          "url": "https://cis.scc.virginia.gov/EntitySearch/Index",
+          "fetched_at": "2026-10-01T22:43:13.921968Z",
+          "established_entity_id": null,
+          "established_entity_name": null,
+          "entity_status": null,
+          "principal_office_address": null,
+          "legal_names": [],
+          "dbas": [],
+          "principals": [],
+          "evidence": [],
+          "conflicts": [],
+          "notes": [
+            "Virginia SCC CIS requires reCAPTCHA before entity search; no automated search was attempted."
+          ]
+        }
+      ],
+      "search_keys": [
+        {
+          "original_value": "Brownlee Plumbing",
+          "normalized_value": "brownlee plumbing",
+          "source_field": "business_name",
+          "origin": "base_identity",
+          "registry_name": null,
+          "entity_id": null,
+          "source_url": null,
+          "registry_role": null
+        }
+      ],
+      "board_results": [
+        {
+          "board_id": "DPOR",
+          "board_name": "Virginia Department of Professional and Occupational Regulation",
+          "jurisdiction": "VA",
+          "strategy": "dpor_regulant_lists",
+          "search_status": "unreachable",
+          "issue_kind": null,
+          "source_url": "https://www.dpor.virginia.gov/RegulantLists",
+          "fetched_at": "2026-10-01T22:43:14.405260+00:00",
+          "match_decisions": [],
+          "notes": [
+            "DPOR regulant list 2705 A contained malformed rows."
+          ]
+        }
+      ],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "A single Place Details record exactly matches the normalized input phone.",
+        "The identity is verified from one source, so confidence is medium.",
+        "The Google display name is not asserted to be a legal name or DBA."
+      ],
+      "license_notes": [
+        "Board search status describes source access; it does not describe license standing or identity-match confidence.",
+        "No license candidate was accepted for this identity; this does not mean the business is unlicensed.",
+        "One or more relevant searches were incomplete or intentionally skipped."
+      ],
+      "verification": {
+        "identity_correctness": "correct",
+        "expected_business_name": "Brownlee Plumbing LLC",
+        "verified_business_names": [
+          "Brownlee Plumbing LLC"
+        ],
+        "matched_verified_business_name": "Brownlee Plumbing LLC",
+        "predicted_business_name": "Brownlee Plumbing",
+        "comparison": "exact against the primary name or an explicitly verified alias after standard name normalization and removal of trailing legal-entity suffixes",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P04",
+      "original_phone": "301.388.8855",
+      "market_hint": "DC Metro",
+      "input_notes": "Public listing for an electrical company (Upper Marlboro / DC Metro).",
+      "normalized_phone": "+13013888855",
+      "invalid_input": false,
+      "identity_found": true,
+      "identity_confidence": "medium",
+      "business_name": "Powerworks LLC",
+      "business_address": "14025 Reverend Boucher Pl, Upper Marlboro, MD 20772, USA",
+      "business_states": [
+        "MD"
+      ],
+      "normalized_categories": [
+        "electrical"
+      ],
+      "identity_place_id": "ChIJtTzYexmVt4kR90sCmfcoiYI",
+      "pipeline_status": "partial",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [
+        "MD_ELECTRICIANS"
+      ],
+      "registry_results": [
+        {
+          "jurisdiction": "MD",
+          "registry": "Maryland SDAT Business Express",
+          "status": "skipped",
+          "url": "https://egov.maryland.gov/BusinessExpress/EntitySearch",
+          "fetched_at": "2026-10-01T22:43:17.460112Z",
+          "established_entity_id": null,
+          "established_entity_name": null,
+          "entity_status": null,
+          "principal_office_address": null,
+          "legal_names": [],
+          "dbas": [],
+          "principals": [],
+          "evidence": [],
+          "conflicts": [],
+          "notes": [
+            "Maryland Business Express protects entity search and entity-detail submission with Cloudflare Turnstile.",
+            "No published unauthenticated automation contract is configured; protected browser interactions were not automated.",
+            "A manual official-source evidence export may be supplied for auditable enrichment."
+          ]
+        }
+      ],
+      "search_keys": [
+        {
+          "original_value": "Powerworks LLC",
+          "normalized_value": "powerworks llc",
+          "source_field": "business_name",
+          "origin": "base_identity",
+          "registry_name": null,
+          "entity_id": null,
+          "source_url": null,
+          "registry_role": null
+        }
+      ],
+      "board_results": [
+        {
+          "board_id": "MD_ELECTRICIANS",
+          "board_name": "Maryland State Board of Electricians",
+          "jurisdiction": "MD",
+          "strategy": "official_electrician_query",
+          "search_status": "skipped",
+          "issue_kind": "no_safe_adapter",
+          "source_url": null,
+          "fetched_at": "2026-10-01T22:43:17.488136+00:00",
+          "match_decisions": [],
+          "notes": [
+            "No safe official adapter is configured for this selection."
+          ]
+        }
+      ],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "A single Place Details record exactly matches the normalized input phone.",
+        "The identity is verified from one source, so confidence is medium.",
+        "The Google display name is not asserted to be a legal name or DBA."
+      ],
+      "license_notes": [
+        "Board search status describes source access; it does not describe license standing or identity-match confidence.",
+        "No license candidate was accepted for this identity; this does not mean the business is unlicensed.",
+        "One or more relevant searches were incomplete or intentionally skipped."
+      ],
+      "verification": {
+        "identity_correctness": "correct",
+        "expected_business_name": "PowerWorks LLC",
+        "verified_business_names": [
+          "PowerWorks LLC"
+        ],
+        "matched_verified_business_name": "PowerWorks LLC",
+        "predicted_business_name": "Powerworks LLC",
+        "comparison": "exact against the primary name or an explicitly verified alias after standard name normalization and removal of trailing legal-entity suffixes",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P05",
+      "original_phone": "202-351-6878",
+      "market_hint": "DC Metro",
+      "input_notes": "Public main line from company website (plumbing/HVAC).",
+      "normalized_phone": "+12023516878",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "complete",
+      "cache_status": "miss_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "Candidates were returned, but none had a non-conflicting phone that exactly normalized to the input.",
+        "Search ranking was not treated as proof of identity."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "JM Plumbing & Heating",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P06",
+      "original_phone": "+1 (737) 381-7024",
+      "market_hint": "Austin",
+      "input_notes": "Public main line from company website (electrical). Format variant with +1.",
+      "normalized_phone": "+17373817024",
+      "invalid_input": false,
+      "identity_found": true,
+      "identity_confidence": "medium",
+      "business_name": "FDL Electric",
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [
+        "electrical"
+      ],
+      "identity_place_id": "ChIJLVfOaSylh2kReC80Gestapo",
+      "pipeline_status": "partial",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [
+        {
+          "original_value": "FDL Electric",
+          "normalized_value": "fdl electric",
+          "source_field": "business_name",
+          "origin": "base_identity",
+          "registry_name": null,
+          "entity_id": null,
+          "source_url": null,
+          "registry_role": null
+        }
+      ],
+      "board_results": [
+        {
+          "board_id": null,
+          "board_name": null,
+          "jurisdiction": null,
+          "strategy": null,
+          "search_status": "skipped",
+          "issue_kind": "ambiguous",
+          "source_url": null,
+          "fetched_at": "2026-10-01T22:43:20.071140+00:00",
+          "match_decisions": [],
+          "notes": [
+            "Day 1 observed no address state; no board mapping can be considered."
+          ]
+        }
+      ],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "A single Place Details record exactly matches the normalized input phone.",
+        "The identity is verified from one source, so confidence is medium.",
+        "The Google display name is not asserted to be a legal name or DBA.",
+        "Google marks this as a pure service-area business; a hidden address is expected."
+      ],
+      "license_notes": [
+        "Board search status describes source access; it does not describe license standing or identity-match confidence.",
+        "No license candidate was accepted for this identity; this does not mean the business is unlicensed.",
+        "One or more relevant searches were incomplete or intentionally skipped."
+      ],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No manually established identity ground truth was supplied."
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P07",
+      "original_phone": "512-537-8767",
+      "market_hint": "Austin",
+      "input_notes": "Public main line from company website (plumbing).",
+      "normalized_phone": "+15125378767",
+      "invalid_input": false,
+      "identity_found": true,
+      "identity_confidence": "medium",
+      "business_name": "Mango Plumbing",
+      "business_address": "217 Remuda Dr, Liberty Hill, TX 78642, USA",
+      "business_states": [
+        "TX"
+      ],
+      "normalized_categories": [
+        "plumbing"
+      ],
+      "identity_place_id": "ChIJX0sTg5rKZiQRJadklbQoGq4",
+      "pipeline_status": "partial",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [
+        "TSBPE"
+      ],
+      "registry_results": [],
+      "search_keys": [
+        {
+          "original_value": "Mango Plumbing",
+          "normalized_value": "mango plumbing",
+          "source_field": "business_name",
+          "origin": "base_identity",
+          "registry_name": null,
+          "entity_id": null,
+          "source_url": null,
+          "registry_role": null
+        }
+      ],
+      "board_results": [
+        {
+          "board_id": "TSBPE",
+          "board_name": "Texas State Board of Plumbing Examiners",
+          "jurisdiction": "TX",
+          "strategy": "free_licensee_lists",
+          "search_status": "unreachable",
+          "issue_kind": null,
+          "source_url": "https://tsbpe.texas.gov/free-licensee-list/",
+          "fetched_at": "2026-10-01T22:43:20.615874+00:00",
+          "match_decisions": [],
+          "notes": [
+            "Client error '403 Forbidden' for url 'https://tsbpe.texas.gov/download-csv/RMP/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403"
+          ]
+        }
+      ],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "A single Place Details record exactly matches the normalized input phone.",
+        "The identity is verified from one source, so confidence is medium.",
+        "The Google display name is not asserted to be a legal name or DBA."
+      ],
+      "license_notes": [
+        "Board search status describes source access; it does not describe license standing or identity-match confidence.",
+        "No license candidate was accepted for this identity; this does not mean the business is unlicensed.",
+        "One or more relevant searches were incomplete or intentionally skipped."
+      ],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No manually established identity ground truth was supplied."
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P08",
+      "original_phone": "(512) 943-7070",
+      "market_hint": "Austin",
+      "input_notes": "Public main line from company website (plumbing/HVAC/electrical).",
+      "normalized_phone": "+15129437070",
+      "invalid_input": false,
+      "identity_found": true,
+      "identity_confidence": "medium",
+      "business_name": "Abacus Plumbing, Air Conditioning, & Electrical",
+      "business_address": "2106 Denton Dr, Austin, TX 78758, USA",
+      "business_states": [
+        "TX"
+      ],
+      "normalized_categories": [
+        "plumbing",
+        "electrical",
+        "renovation"
+      ],
+      "identity_place_id": "ChIJi_P-PQ_LRIYRkjOeqifUfkM",
+      "pipeline_status": "partial",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [
+        "TSBPE",
+        "TDLR"
+      ],
+      "registry_results": [],
+      "search_keys": [
+        {
+          "original_value": "Abacus Plumbing, Air Conditioning, & Electrical",
+          "normalized_value": "abacus plumbing air conditioning electrical",
+          "source_field": "business_name",
+          "origin": "base_identity",
+          "registry_name": null,
+          "entity_id": null,
+          "source_url": null,
+          "registry_role": null
+        }
+      ],
+      "board_results": [
+        {
+          "board_id": "TSBPE",
+          "board_name": "Texas State Board of Plumbing Examiners",
+          "jurisdiction": "TX",
+          "strategy": "free_licensee_lists",
+          "search_status": "unreachable",
+          "issue_kind": null,
+          "source_url": "https://tsbpe.texas.gov/free-licensee-list/",
+          "fetched_at": "2026-10-01T22:43:21.227622+00:00",
+          "match_decisions": [],
+          "notes": [
+            "Client error '403 Forbidden' for url 'https://tsbpe.texas.gov/download-csv/RMP/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403"
+          ]
+        },
+        {
+          "board_id": "TDLR",
+          "board_name": "Texas Department of Licensing and Regulation",
+          "jurisdiction": "TX",
+          "strategy": "tdlr_all_licenses_open_data",
+          "search_status": "not_found",
+          "issue_kind": null,
+          "source_url": "https://data.texas.gov/dataset/TDLR-All-Licenses/7358-krk7",
+          "fetched_at": "2026-10-01T22:43:21.345263+00:00",
+          "match_decisions": [],
+          "notes": [
+            "The official source was reached but returned no candidate rows; this is not an unlicensed conclusion."
+          ]
+        },
+        {
+          "board_id": null,
+          "board_name": null,
+          "jurisdiction": "TX",
+          "strategy": null,
+          "search_status": "skipped",
+          "issue_kind": "unsupported",
+          "source_url": null,
+          "fetched_at": "2026-10-01T22:43:21.856027+00:00",
+          "match_decisions": [],
+          "notes": [
+            "boards.md does not define a Texas board mapping for this category."
+          ]
+        }
+      ],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "A single Place Details record exactly matches the normalized input phone.",
+        "The identity is verified from one source, so confidence is medium.",
+        "The Google display name is not asserted to be a legal name or DBA."
+      ],
+      "license_notes": [
+        "Board search status describes source access; it does not describe license standing or identity-match confidence.",
+        "No license candidate was accepted for this identity; this does not mean the business is unlicensed.",
+        "One or more relevant searches were incomplete or intentionally skipped."
+      ],
+      "verification": {
+        "identity_correctness": "correct",
+        "expected_business_name": "Abacus Plumbing, Air Conditioning & Electrical",
+        "verified_business_names": [
+          "Abacus Plumbing, Air Conditioning & Electrical"
+        ],
+        "matched_verified_business_name": "Abacus Plumbing, Air Conditioning & Electrical",
+        "predicted_business_name": "Abacus Plumbing, Air Conditioning, & Electrical",
+        "comparison": "exact against the primary name or an explicitly verified alias after standard name normalization and removal of trailing legal-entity suffixes",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P09",
+      "original_phone": "5124881120",
+      "market_hint": "Austin",
+      "input_notes": "Digits-only variant of a public company main line (HVAC/plumbing/electrical).",
+      "normalized_phone": "+15124881120",
+      "invalid_input": false,
+      "identity_found": true,
+      "identity_confidence": "medium",
+      "business_name": "Fox Service Company",
+      "business_address": "1506 Ferguson Ln Ste 102, Austin, TX 78754, USA",
+      "business_states": [
+        "TX"
+      ],
+      "normalized_categories": [
+        "plumbing",
+        "electrical",
+        "renovation"
+      ],
+      "identity_place_id": "ChIJQQ05e7y0RIYRxaK_NJ0dPKs",
+      "pipeline_status": "partial",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [
+        "TSBPE",
+        "TDLR"
+      ],
+      "registry_results": [],
+      "search_keys": [
+        {
+          "original_value": "Fox Service Company",
+          "normalized_value": "fox service co",
+          "source_field": "business_name",
+          "origin": "base_identity",
+          "registry_name": null,
+          "entity_id": null,
+          "source_url": null,
+          "registry_role": null
+        }
+      ],
+      "board_results": [
+        {
+          "board_id": "TSBPE",
+          "board_name": "Texas State Board of Plumbing Examiners",
+          "jurisdiction": "TX",
+          "strategy": "free_licensee_lists",
+          "search_status": "unreachable",
+          "issue_kind": null,
+          "source_url": "https://tsbpe.texas.gov/free-licensee-list/",
+          "fetched_at": "2026-10-01T22:43:22.338141+00:00",
+          "match_decisions": [],
+          "notes": [
+            "Client error '403 Forbidden' for url 'https://tsbpe.texas.gov/download-csv/RMP/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403"
+          ]
+        },
+        {
+          "board_id": "TDLR",
+          "board_name": "Texas Department of Licensing and Regulation",
+          "jurisdiction": "TX",
+          "strategy": "tdlr_all_licenses_open_data",
+          "search_status": "ok",
+          "issue_kind": null,
+          "source_url": "https://data.texas.gov/dataset/TDLR-All-Licenses/7358-krk7",
+          "fetched_at": "2026-10-01T22:43:22.468224+00:00",
+          "match_decisions": [
+            {
+              "candidate": {
+                "board_id": "TDLR",
+                "board_name": "Texas Department of Licensing and Regulation",
+                "source_strategy": "tdlr_all_licenses_open_data",
+                "license_number": "33423",
+                "holder_name": "FOX SERVICE COMPANY",
+                "holder_name_role": "business",
+                "raw_license_type": "Electrical Contractor",
+                "raw_classification": "EC",
+                "raw_license_status": null,
+                "issued_date": null,
+                "expiration_date": "03/13/2027",
+                "address": "4300 SOUTH CONGRESS AVENUE, AUSTIN TX 78745",
+                "state": "TX",
+                "phone": "5124426782",
+                "source_fields": {
+                  "license_type": "Electrical Contractor",
+                  "license_number": "33423",
+                  "business_county": "TRAVIS",
+                  "business_name": "FOX SERVICE COMPANY",
+                  "business_address_line1": "4300 SOUTH CONGRESS AVENUE",
+                  "business_city_state_zip": "AUSTIN TX 78745",
+                  "business_telephone": "5124426782",
+                  "license_expiration_date_mmddccyy": "03/13/2027",
+                  "owner_name": "FOX SERVICE COMPANY",
+                  "mailing_address_line1": "1506  FERGUSON LN STE 102",
+                  "mailing_address_city_state_zip": "AUSTIN TX 78754",
+                  "mailing_address_county": "TRAVIS",
+                  "owner_telephone": "5124426782",
+                  "license_subtype": "EC",
+                  "continuing_education_flag": "N",
+                  "business_mailing": {
+                    "type": "Point",
+                    "coordinates": [
+                      -97.74299,
+                      30.26759
+                    ]
+                  }
+                },
+                "evidence_url": "https://data.texas.gov/resource/7358-krk7.json?%24q=Fox+Service+Company&%24limit=1000",
+                "source_reference": "TDLR All Licenses Socrata dataset 7358-krk7",
+                "fetched_at": "2026-10-01T22:43:22.468224Z"
+              },
+              "accepted": true,
+              "match_confidence": "medium",
+              "name_relationship": "exact_normalized",
+              "matched_identity_field": "business_name",
+              "matched_identity_value": "Fox Service Company",
+              "matched_candidate_field": "holder_name",
+              "matched_candidate_role": "business",
+              "supporting_evidence": [
+                "exact_address",
+                "observed_address_state_consistent",
+                "trade_category_consistent"
+              ],
+              "conflicts": [
+                "candidate_phone_conflicts_with_day1_phone"
+              ],
+              "notes": [
+                "An exact normalized business name and exact official address provide stronger corroboration despite a different board contact phone (Day 1: +15124881120; board: +15124426782)."
+              ]
+            }
+          ],
+          "notes": [
+            "Returned rows are candidates only; no identity match was accepted."
+          ]
+        },
+        {
+          "board_id": null,
+          "board_name": null,
+          "jurisdiction": "TX",
+          "strategy": null,
+          "search_status": "skipped",
+          "issue_kind": "unsupported",
+          "source_url": null,
+          "fetched_at": "2026-10-01T22:43:22.914896+00:00",
+          "match_decisions": [],
+          "notes": [
+            "boards.md does not define a Texas board mapping for this category."
+          ]
+        }
+      ],
+      "accepted_licenses": [
+        {
+          "board_id": "TDLR",
+          "board_name": "Texas Department of Licensing and Regulation",
+          "license_number": "33423",
+          "holder_name": "FOX SERVICE COMPANY",
+          "raw_license_status": null,
+          "normalized_status": null,
+          "match_confidence": "medium",
+          "matched_identity_field": "business_name",
+          "matched_identity_value": "Fox Service Company",
+          "supporting_evidence": [
+            "exact_address",
+            "observed_address_state_consistent",
+            "trade_category_consistent"
+          ],
+          "match_notes": [
+            "An exact normalized business name and exact official address provide stronger corroboration despite a different board contact phone (Day 1: +15124881120; board: +15124426782)."
+          ],
+          "evidence_url": "https://data.texas.gov/resource/7358-krk7.json?%24q=Fox+Service+Company&%24limit=1000",
+          "source_reference": "TDLR All Licenses Socrata dataset 7358-krk7",
+          "fetched_at": "2026-10-01T22:43:22.468224+00:00"
+        }
+      ],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "A single Place Details record exactly matches the normalized input phone.",
+        "The identity is verified from one source, so confidence is medium.",
+        "The Google display name is not asserted to be a legal name or DBA."
+      ],
+      "license_notes": [
+        "Board search status describes source access; it does not describe license standing or identity-match confidence.",
+        "One or more relevant searches were incomplete or intentionally skipped."
+      ],
+      "verification": {
+        "identity_correctness": "correct",
+        "expected_business_name": "Fox Service Company",
+        "verified_business_names": [
+          "Fox Service Company"
+        ],
+        "matched_verified_business_name": "Fox Service Company",
+        "predicted_business_name": "Fox Service Company",
+        "comparison": "exact against the primary name or an explicitly verified alias after standard name normalization and removal of trailing legal-entity suffixes",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P10",
+      "original_phone": "512-524-3443",
+      "market_hint": "Austin",
+      "input_notes": "Public main line from company website (plumbing franchise).",
+      "normalized_phone": "+15125243443",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "complete",
+      "cache_status": "miss_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "Google Places returned no candidates for the valid phone number."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No manually established identity ground truth was supplied."
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P11",
+      "original_phone": "512-298-4916",
+      "market_hint": "Austin",
+      "input_notes": "Public main line from company website (plumbing).",
+      "normalized_phone": "+15122984916",
+      "invalid_input": false,
+      "identity_found": true,
+      "identity_confidence": "medium",
+      "business_name": "Mr. Rooter Plumbing of Austin",
+      "business_address": "12201 Roxie Dr, Austin, TX 78729, USA",
+      "business_states": [
+        "TX"
+      ],
+      "normalized_categories": [
+        "plumbing"
+      ],
+      "identity_place_id": "ChIJU5VayC3NRIYRkdvH2VXVu2Q",
+      "pipeline_status": "partial",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [
+        "TSBPE"
+      ],
+      "registry_results": [],
+      "search_keys": [
+        {
+          "original_value": "Mr. Rooter Plumbing of Austin",
+          "normalized_value": "mr rooter plumbing of austin",
+          "source_field": "business_name",
+          "origin": "base_identity",
+          "registry_name": null,
+          "entity_id": null,
+          "source_url": null,
+          "registry_role": null
+        }
+      ],
+      "board_results": [
+        {
+          "board_id": "TSBPE",
+          "board_name": "Texas State Board of Plumbing Examiners",
+          "jurisdiction": "TX",
+          "strategy": "free_licensee_lists",
+          "search_status": "unreachable",
+          "issue_kind": null,
+          "source_url": "https://tsbpe.texas.gov/free-licensee-list/",
+          "fetched_at": "2026-10-01T22:43:24.026094+00:00",
+          "match_decisions": [],
+          "notes": [
+            "Client error '403 Forbidden' for url 'https://tsbpe.texas.gov/download-csv/RMP/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403"
+          ]
+        }
+      ],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "A single Place Details record exactly matches the normalized input phone.",
+        "The identity is verified from one source, so confidence is medium.",
+        "The Google display name is not asserted to be a legal name or DBA."
+      ],
+      "license_notes": [
+        "Board search status describes source access; it does not describe license standing or identity-match confidence.",
+        "No license candidate was accepted for this identity; this does not mean the business is unlicensed.",
+        "One or more relevant searches were incomplete or intentionally skipped."
+      ],
+      "verification": {
+        "identity_correctness": "correct",
+        "expected_business_name": "Mr. Rooter Plumbing of Austin",
+        "verified_business_names": [
+          "Mr. Rooter Plumbing of Austin"
+        ],
+        "matched_verified_business_name": "Mr. Rooter Plumbing of Austin",
+        "predicted_business_name": "Mr. Rooter Plumbing of Austin",
+        "comparison": "exact against the primary name or an explicitly verified alias after standard name normalization and removal of trailing legal-entity suffixes",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P12",
+      "original_phone": "(415) 843-2900",
+      "market_hint": "SF Bay",
+      "input_notes": "Public main line from company website (plumbing/HVAC/electrical).",
+      "normalized_phone": "+14158432900",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "complete",
+      "cache_status": "miss_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "Google Places returned no candidates for the valid phone number."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "Cabrillo Plumbing, Heating & Air",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P13",
+      "original_phone": "650-343-4700",
+      "market_hint": "SF Bay",
+      "input_notes": "Second public main line from same company as P12 (Peninsula).",
+      "normalized_phone": "+16503434700",
+      "invalid_input": false,
+      "identity_found": true,
+      "identity_confidence": "medium",
+      "business_name": "Cabrillo Plumbing, Heating & Air",
+      "business_address": "78 Dorman Ave, San Francisco, CA 94124, USA",
+      "business_states": [
+        "CA"
+      ],
+      "normalized_categories": [
+        "renovation",
+        "plumbing"
+      ],
+      "identity_place_id": "ChIJlytGd1V-j4AR2mjAEabBAhk",
+      "pipeline_status": "partial",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [
+        "CSLB"
+      ],
+      "registry_results": [
+        {
+          "jurisdiction": "CA",
+          "registry": "California Secretary of State bizfile Online",
+          "status": "skipped",
+          "url": "https://bizfileonline.sos.ca.gov/",
+          "fetched_at": "2026-10-01T22:43:25.560018Z",
+          "established_entity_id": null,
+          "established_entity_name": null,
+          "entity_status": null,
+          "principal_office_address": null,
+          "legal_names": [],
+          "dbas": [],
+          "principals": [],
+          "evidence": [],
+          "conflicts": [],
+          "notes": [
+            "The public bizfile UI was reachable, but no documented unauthenticated entity-search API was configured.",
+            "No UI automation or anti-bot circumvention was attempted.",
+            "County fictitious-business-name filings are outside Phase 2."
+          ]
+        }
+      ],
+      "search_keys": [
+        {
+          "original_value": "Cabrillo Plumbing, Heating & Air",
+          "normalized_value": "cabrillo plumbing heating air",
+          "source_field": "business_name",
+          "origin": "base_identity",
+          "registry_name": null,
+          "entity_id": null,
+          "source_url": null,
+          "registry_role": null
+        }
+      ],
+      "board_results": [
+        {
+          "board_id": "CSLB",
+          "board_name": "California Contractors State License Board",
+          "jurisdiction": "CA",
+          "strategy": "cslb_license_master",
+          "search_status": "unreachable",
+          "issue_kind": null,
+          "source_url": "https://www.cslb.ca.gov/onlineservices/dataportal/ContractorList",
+          "fetched_at": "2026-10-01T22:43:25.846375+00:00",
+          "match_decisions": [],
+          "notes": [
+            "CSLB did not return its License Master CSV."
+          ]
+        }
+      ],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "First-party website evidence exactly matched the input phone, Places business name, and full Places street address.",
+        "That corroboration overcame the different phone returned by Google Places; the Places phone mismatch remains visible in the evidence and candidate assessment.",
+        "The Google display name is not asserted to be a legal name or DBA."
+      ],
+      "license_notes": [
+        "Board search status describes source access; it does not describe license standing or identity-match confidence.",
+        "No license candidate was accepted for this identity; this does not mean the business is unlicensed.",
+        "One or more relevant searches were incomplete or intentionally skipped."
+      ],
+      "verification": {
+        "identity_correctness": "correct",
+        "expected_business_name": "Cabrillo Plumbing, Heating & Air",
+        "verified_business_names": [
+          "Cabrillo Plumbing, Heating & Air"
+        ],
+        "matched_verified_business_name": "Cabrillo Plumbing, Heating & Air",
+        "predicted_business_name": "Cabrillo Plumbing, Heating & Air",
+        "comparison": "exact against the primary name or an explicitly verified alias after standard name normalization and removal of trailing legal-entity suffixes",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P14",
+      "original_phone": "415-226-4125",
+      "market_hint": "SF Bay",
+      "input_notes": "Public main line from company website (HVAC/plumbing).",
+      "normalized_phone": "+14152264125",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "complete",
+      "cache_status": "miss_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "Google Places returned no candidates for the valid phone number."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "TRIO Heating, Air & Plumbing",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P15",
+      "original_phone": "925-503-4838",
+      "market_hint": "SF Bay",
+      "input_notes": "Public directory listing for a plumbing contractor (Antioch area).",
+      "normalized_phone": "+19255034838",
+      "invalid_input": false,
+      "identity_found": true,
+      "identity_confidence": "medium",
+      "business_name": "Prime Plumbing and Drain, Inc",
+      "business_address": "1409 Jacobsen St, Antioch, CA 94509, USA",
+      "business_states": [
+        "CA"
+      ],
+      "normalized_categories": [
+        "plumbing"
+      ],
+      "identity_place_id": "ChIJ94o_DUEh3YgR5SKpTGGaIao",
+      "pipeline_status": "partial",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [
+        "CSLB"
+      ],
+      "registry_results": [
+        {
+          "jurisdiction": "CA",
+          "registry": "California Secretary of State bizfile Online",
+          "status": "skipped",
+          "url": "https://bizfileonline.sos.ca.gov/",
+          "fetched_at": "2026-10-01T22:43:27.894422Z",
+          "established_entity_id": null,
+          "established_entity_name": null,
+          "entity_status": null,
+          "principal_office_address": null,
+          "legal_names": [],
+          "dbas": [],
+          "principals": [],
+          "evidence": [],
+          "conflicts": [],
+          "notes": [
+            "The public bizfile UI was reachable, but no documented unauthenticated entity-search API was configured.",
+            "No UI automation or anti-bot circumvention was attempted.",
+            "County fictitious-business-name filings are outside Phase 2."
+          ]
+        }
+      ],
+      "search_keys": [
+        {
+          "original_value": "Prime Plumbing and Drain, Inc",
+          "normalized_value": "prime plumbing and drain inc",
+          "source_field": "business_name",
+          "origin": "base_identity",
+          "registry_name": null,
+          "entity_id": null,
+          "source_url": null,
+          "registry_role": null
+        }
+      ],
+      "board_results": [
+        {
+          "board_id": "CSLB",
+          "board_name": "California Contractors State License Board",
+          "jurisdiction": "CA",
+          "strategy": "cslb_license_master",
+          "search_status": "unreachable",
+          "issue_kind": null,
+          "source_url": "https://www.cslb.ca.gov/onlineservices/dataportal/ContractorList",
+          "fetched_at": "2026-10-01T22:43:28.073330+00:00",
+          "match_decisions": [],
+          "notes": [
+            "CSLB did not return its License Master CSV."
+          ]
+        }
+      ],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "A single Place Details record exactly matches the normalized input phone.",
+        "The identity is verified from one source, so confidence is medium.",
+        "The Google display name is not asserted to be a legal name or DBA."
+      ],
+      "license_notes": [
+        "Board search status describes source access; it does not describe license standing or identity-match confidence.",
+        "No license candidate was accepted for this identity; this does not mean the business is unlicensed.",
+        "One or more relevant searches were incomplete or intentionally skipped."
+      ],
+      "verification": {
+        "identity_correctness": "correct",
+        "expected_business_name": "Prime Plumbing and Drain, Inc.",
+        "verified_business_names": [
+          "Prime Plumbing and Drain, Inc."
+        ],
+        "matched_verified_business_name": "Prime Plumbing and Drain, Inc.",
+        "predicted_business_name": "Prime Plumbing and Drain, Inc",
+        "comparison": "exact against the primary name or an explicitly verified alias after standard name normalization and removal of trailing legal-entity suffixes",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P16",
+      "original_phone": "415-656-2130",
+      "market_hint": "SF Bay",
+      "input_notes": "Public main line from company website (plumbing).",
+      "normalized_phone": "+14156562130",
+      "invalid_input": false,
+      "identity_found": true,
+      "identity_confidence": "medium",
+      "business_name": "Roto-Rooter Plumbing & Water Cleanup",
+      "business_address": "2873 Mission St #3, San Francisco, CA 94110, USA",
+      "business_states": [
+        "CA"
+      ],
+      "normalized_categories": [
+        "plumbing",
+        "renovation"
+      ],
+      "identity_place_id": "ChIJVVVVVamHhYARR_QEw_Qf1D0",
+      "pipeline_status": "partial",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [
+        "CSLB"
+      ],
+      "registry_results": [
+        {
+          "jurisdiction": "CA",
+          "registry": "California Secretary of State bizfile Online",
+          "status": "skipped",
+          "url": "https://bizfileonline.sos.ca.gov/",
+          "fetched_at": "2026-10-01T22:43:29.797726Z",
+          "established_entity_id": null,
+          "established_entity_name": null,
+          "entity_status": null,
+          "principal_office_address": null,
+          "legal_names": [],
+          "dbas": [],
+          "principals": [],
+          "evidence": [],
+          "conflicts": [],
+          "notes": [
+            "The public bizfile UI was reachable, but no documented unauthenticated entity-search API was configured.",
+            "No UI automation or anti-bot circumvention was attempted.",
+            "County fictitious-business-name filings are outside Phase 2."
+          ]
+        }
+      ],
+      "search_keys": [
+        {
+          "original_value": "Roto-Rooter Plumbing & Water Cleanup",
+          "normalized_value": "roto rooter plumbing water cleanup",
+          "source_field": "business_name",
+          "origin": "base_identity",
+          "registry_name": null,
+          "entity_id": null,
+          "source_url": null,
+          "registry_role": null
+        }
+      ],
+      "board_results": [
+        {
+          "board_id": "CSLB",
+          "board_name": "California Contractors State License Board",
+          "jurisdiction": "CA",
+          "strategy": "cslb_license_master",
+          "search_status": "unreachable",
+          "issue_kind": null,
+          "source_url": "https://www.cslb.ca.gov/onlineservices/dataportal/ContractorList",
+          "fetched_at": "2026-10-01T22:43:30.027273+00:00",
+          "match_decisions": [],
+          "notes": [
+            "CSLB did not return its License Master CSV."
+          ]
+        }
+      ],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "First-party website evidence exactly matched the input phone, Places business name, and full Places street address.",
+        "That corroboration overcame the different phone returned by Google Places; the Places phone mismatch remains visible in the evidence and candidate assessment.",
+        "The Google display name is not asserted to be a legal name or DBA."
+      ],
+      "license_notes": [
+        "Board search status describes source access; it does not describe license standing or identity-match confidence.",
+        "No license candidate was accepted for this identity; this does not mean the business is unlicensed.",
+        "One or more relevant searches were incomplete or intentionally skipped."
+      ],
+      "verification": {
+        "identity_correctness": "correct",
+        "expected_business_name": "Roto-Rooter San Francisco",
+        "verified_business_names": [
+          "Roto-Rooter San Francisco",
+          "Roto-Rooter Plumbing & Water Cleanup"
+        ],
+        "matched_verified_business_name": "Roto-Rooter Plumbing & Water Cleanup",
+        "predicted_business_name": "Roto-Rooter Plumbing & Water Cleanup",
+        "comparison": "exact against the primary name or an explicitly verified alias after standard name normalization and removal of trailing legal-entity suffixes",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    },
+    {
+      "case_id": "P17",
+      "original_phone": "7034779016",
+      "market_hint": "DC Metro",
+      "input_notes": "Digits-only duplicate of P03 \u2014 same identity expected after normalization.",
+      "normalized_phone": "+17034779016",
+      "invalid_input": false,
+      "identity_found": true,
+      "identity_confidence": "medium",
+      "business_name": "Brownlee Plumbing",
+      "business_address": "7702 Backlick Rd M, Springfield, VA 22150, USA",
+      "business_states": [
+        "VA"
+      ],
+      "normalized_categories": [
+        "plumbing"
+      ],
+      "identity_place_id": "ChIJV1UVX5Oyt4kRutJgIbYvjLU",
+      "pipeline_status": "partial",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [
+        "DPOR"
+      ],
+      "registry_results": [
+        {
+          "jurisdiction": "VA",
+          "registry": "Virginia SCC Clerk's Information System",
+          "status": "captcha_blocked",
+          "url": "https://cis.scc.virginia.gov/EntitySearch/Index",
+          "fetched_at": "2026-10-01T22:43:31.488853Z",
+          "established_entity_id": null,
+          "established_entity_name": null,
+          "entity_status": null,
+          "principal_office_address": null,
+          "legal_names": [],
+          "dbas": [],
+          "principals": [],
+          "evidence": [],
+          "conflicts": [],
+          "notes": [
+            "Virginia SCC CIS requires reCAPTCHA before entity search; no automated search was attempted."
+          ]
+        }
+      ],
+      "search_keys": [
+        {
+          "original_value": "Brownlee Plumbing",
+          "normalized_value": "brownlee plumbing",
+          "source_field": "business_name",
+          "origin": "base_identity",
+          "registry_name": null,
+          "entity_id": null,
+          "source_url": null,
+          "registry_role": null
+        }
+      ],
+      "board_results": [
+        {
+          "board_id": "DPOR",
+          "board_name": "Virginia Department of Professional and Occupational Regulation",
+          "jurisdiction": "VA",
+          "strategy": "dpor_regulant_lists",
+          "search_status": "unreachable",
+          "issue_kind": null,
+          "source_url": "https://www.dpor.virginia.gov/RegulantLists",
+          "fetched_at": "2026-10-01T22:43:31.941283+00:00",
+          "match_decisions": [],
+          "notes": [
+            "DPOR regulant list 2705 A contained malformed rows."
+          ]
+        }
+      ],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "A single Place Details record exactly matches the normalized input phone.",
+        "The identity is verified from one source, so confidence is medium.",
+        "The Google display name is not asserted to be a legal name or DBA."
+      ],
+      "license_notes": [
+        "Board search status describes source access; it does not describe license standing or identity-match confidence.",
+        "No license candidate was accepted for this identity; this does not mean the business is unlicensed.",
+        "One or more relevant searches were incomplete or intentionally skipped."
+      ],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false,
+      "duplicate_of_case_id": "P03"
+    },
+    {
+      "case_id": "P18",
+      "original_phone": "+15125378767",
+      "market_hint": "Austin",
+      "input_notes": "E.164-ish duplicate of P07 \u2014 same identity expected.",
+      "normalized_phone": "+15125378767",
+      "invalid_input": false,
+      "identity_found": true,
+      "identity_confidence": "medium",
+      "business_name": "Mango Plumbing",
+      "business_address": "217 Remuda Dr, Liberty Hill, TX 78642, USA",
+      "business_states": [
+        "TX"
+      ],
+      "normalized_categories": [
+        "plumbing"
+      ],
+      "identity_place_id": "ChIJX0sTg5rKZiQRJadklbQoGq4",
+      "pipeline_status": "partial",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [
+        "TSBPE"
+      ],
+      "registry_results": [],
+      "search_keys": [
+        {
+          "original_value": "Mango Plumbing",
+          "normalized_value": "mango plumbing",
+          "source_field": "business_name",
+          "origin": "base_identity",
+          "registry_name": null,
+          "entity_id": null,
+          "source_url": null,
+          "registry_role": null
+        }
+      ],
+      "board_results": [
+        {
+          "board_id": "TSBPE",
+          "board_name": "Texas State Board of Plumbing Examiners",
+          "jurisdiction": "TX",
+          "strategy": "free_licensee_lists",
+          "search_status": "unreachable",
+          "issue_kind": null,
+          "source_url": "https://tsbpe.texas.gov/free-licensee-list/",
+          "fetched_at": "2026-10-01T22:43:35.031938+00:00",
+          "match_decisions": [],
+          "notes": [
+            "Client error '403 Forbidden' for url 'https://tsbpe.texas.gov/download-csv/RMP/'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/403"
+          ]
+        }
+      ],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "A single Place Details record exactly matches the normalized input phone.",
+        "The identity is verified from one source, so confidence is medium.",
+        "The Google display name is not asserted to be a legal name or DBA."
+      ],
+      "license_notes": [
+        "Board search status describes source access; it does not describe license standing or identity-match confidence.",
+        "No license candidate was accepted for this identity; this does not mean the business is unlicensed.",
+        "One or more relevant searches were incomplete or intentionally skipped."
+      ],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false,
+      "duplicate_of_case_id": "P07"
+    },
+    {
+      "case_id": "P19",
+      "original_phone": "1-415-843-2900",
+      "market_hint": "SF Bay",
+      "input_notes": "Leading-1 duplicate of P12 \u2014 same identity expected.",
+      "normalized_phone": "+14158432900",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "complete",
+      "cache_status": "hit",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "Google Places returned no candidates for the valid phone number."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false,
+      "duplicate_of_case_id": "P12"
+    },
+    {
+      "case_id": "P20",
+      "original_phone": "(202) 555-0100",
+      "market_hint": "DC Metro",
+      "input_notes": "Reserved 555-01xx style \u2014 expect no legitimate GBP / no licenses.",
+      "normalized_phone": null,
+      "invalid_input": true,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "invalid_input",
+        "message": "The input uses the reserved fictional 555-01xx range."
+      },
+      "pipeline_notes": [
+        "Invalid input was not cached."
+      ],
+      "identity_notes": [
+        "Input validation failed before any external lookup."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false
+    },
+    {
+      "case_id": "P21",
+      "original_phone": "512-555-0199",
+      "market_hint": "Austin",
+      "input_notes": "Reserved 555-01xx style \u2014 expect no legitimate GBP / no licenses.",
+      "normalized_phone": null,
+      "invalid_input": true,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "invalid_input",
+        "message": "The input uses the reserved fictional 555-01xx range."
+      },
+      "pipeline_notes": [
+        "Invalid input was not cached."
+      ],
+      "identity_notes": [
+        "Input validation failed before any external lookup."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false
+    },
+    {
+      "case_id": "P22",
+      "original_phone": "415-555-0142",
+      "market_hint": "SF Bay",
+      "input_notes": "Reserved 555-01xx style \u2014 expect no legitimate GBP / no licenses.",
+      "normalized_phone": null,
+      "invalid_input": true,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "invalid_input",
+        "message": "The input uses the reserved fictional 555-01xx range."
+      },
+      "pipeline_notes": [
+        "Invalid input was not cached."
+      ],
+      "identity_notes": [
+        "Input validation failed before any external lookup."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false
+    },
+    {
+      "case_id": "P23",
+      "original_phone": "000-000-0000",
+      "market_hint": null,
+      "input_notes": "Invalid \u2014 normalize should reject or mark invalid.",
+      "normalized_phone": null,
+      "invalid_input": true,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "invalid_input",
+        "message": "Only valid U.S. phone numbers are supported."
+      },
+      "pipeline_notes": [
+        "Invalid input was not cached."
+      ],
+      "identity_notes": [
+        "Input validation failed before any external lookup."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false
+    },
+    {
+      "case_id": "P24",
+      "original_phone": "12345",
+      "market_hint": null,
+      "input_notes": "Too short \u2014 invalid.",
+      "normalized_phone": null,
+      "invalid_input": true,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "invalid_input",
+        "message": "Only valid U.S. phone numbers are supported."
+      },
+      "pipeline_notes": [
+        "Invalid input was not cached."
+      ],
+      "identity_notes": [
+        "Input validation failed before any external lookup."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false
+    },
+    {
+      "case_id": "P25",
+      "original_phone": "(999) 999-9999",
+      "market_hint": null,
+      "input_notes": "Implausible \u2014 expect found=false or very low confidence.",
+      "normalized_phone": null,
+      "invalid_input": true,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "failed",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": {
+        "kind": "invalid_input",
+        "message": "Only valid U.S. phone numbers are supported."
+      },
+      "pipeline_notes": [
+        "Invalid input was not cached."
+      ],
+      "identity_notes": [
+        "Input validation failed before any external lookup."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false
+    },
+    {
+      "case_id": "P26",
+      "original_phone": "703-997-2894 x0",
+      "market_hint": "DC Metro",
+      "input_notes": "Same as P01 with junk extension noise \u2014 test sanitization.",
+      "normalized_phone": "+17039972894",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "complete",
+      "cache_status": "hit",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "Google Places returned no candidates for the valid phone number."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false,
+      "duplicate_of_case_id": "P01"
+    },
+    {
+      "case_id": "P27",
+      "original_phone": "tel:+17034779016",
+      "market_hint": "DC Metro",
+      "input_notes": "URI-ish duplicate of P03.",
+      "normalized_phone": "+17034779016",
+      "invalid_input": false,
+      "identity_found": true,
+      "identity_confidence": "medium",
+      "business_name": "Brownlee Plumbing",
+      "business_address": "7702 Backlick Rd M, Springfield, VA 22150, USA",
+      "business_states": [
+        "VA"
+      ],
+      "normalized_categories": [
+        "plumbing"
+      ],
+      "identity_place_id": "ChIJV1UVX5Oyt4kRutJgIbYvjLU",
+      "pipeline_status": "partial",
+      "cache_status": "miss_not_saved",
+      "boards_attempted": [
+        "DPOR"
+      ],
+      "registry_results": [
+        {
+          "jurisdiction": "VA",
+          "registry": "Virginia SCC Clerk's Information System",
+          "status": "captcha_blocked",
+          "url": "https://cis.scc.virginia.gov/EntitySearch/Index",
+          "fetched_at": "2026-10-01T22:43:36.297543Z",
+          "established_entity_id": null,
+          "established_entity_name": null,
+          "entity_status": null,
+          "principal_office_address": null,
+          "legal_names": [],
+          "dbas": [],
+          "principals": [],
+          "evidence": [],
+          "conflicts": [],
+          "notes": [
+            "Virginia SCC CIS requires reCAPTCHA before entity search; no automated search was attempted."
+          ]
+        }
+      ],
+      "search_keys": [
+        {
+          "original_value": "Brownlee Plumbing",
+          "normalized_value": "brownlee plumbing",
+          "source_field": "business_name",
+          "origin": "base_identity",
+          "registry_name": null,
+          "entity_id": null,
+          "source_url": null,
+          "registry_role": null
+        }
+      ],
+      "board_results": [
+        {
+          "board_id": "DPOR",
+          "board_name": "Virginia Department of Professional and Occupational Regulation",
+          "jurisdiction": "VA",
+          "strategy": "dpor_regulant_lists",
+          "search_status": "unreachable",
+          "issue_kind": null,
+          "source_url": "https://www.dpor.virginia.gov/RegulantLists",
+          "fetched_at": "2026-10-01T22:43:36.821851+00:00",
+          "match_decisions": [],
+          "notes": [
+            "DPOR regulant list 2705 A contained malformed rows."
+          ]
+        }
+      ],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "A single Place Details record exactly matches the normalized input phone.",
+        "The identity is verified from one source, so confidence is medium.",
+        "The Google display name is not asserted to be a legal name or DBA."
+      ],
+      "license_notes": [
+        "Board search status describes source access; it does not describe license standing or identity-match confidence.",
+        "No license candidate was accepted for this identity; this does not mean the business is unlicensed.",
+        "One or more relevant searches were incomplete or intentionally skipped."
+      ],
+      "verification": {
+        "identity_correctness": "unknown",
+        "license_truth": "unknown",
+        "reason": "No supported manual verification labels were supplied."
+      },
+      "primary_unique_valid_phone": false,
+      "duplicate_of_case_id": "P03"
+    },
+    {
+      "case_id": "P28",
+      "original_phone": " (512) 400-0749 ",
+      "market_hint": "Austin",
+      "input_notes": "Public secondary/emergency line from same company family as P08 \u2014 may resolve to related identity.",
+      "normalized_phone": "+15124000749",
+      "invalid_input": false,
+      "identity_found": false,
+      "identity_confidence": "low",
+      "business_name": null,
+      "business_address": null,
+      "business_states": [],
+      "normalized_categories": [],
+      "identity_place_id": null,
+      "pipeline_status": "complete",
+      "cache_status": "miss_saved",
+      "boards_attempted": [],
+      "registry_results": [],
+      "search_keys": [],
+      "board_results": [],
+      "accepted_licenses": [],
+      "identity_error": null,
+      "pipeline_notes": [],
+      "identity_notes": [
+        "Google Places returned no candidates for the valid phone number."
+      ],
+      "license_notes": [],
+      "verification": {
+        "identity_correctness": "coverage_miss",
+        "expected_business_name": "Abacus Plumbing, Air Conditioning & Electrical",
+        "license_truth": "unknown"
+      },
+      "primary_unique_valid_phone": true
+    }
+  ],
+  "aggregate": {
+    "total_input_cases": 28,
+    "pipeline_results_returned": 28,
+    "evaluation_execution_errors": 0,
+    "valid_input_cases": 22,
+    "invalid_input_cases": 6,
+    "unique_normalized_phones": 17,
+    "identity_found": {
+      "false": 15,
+      "true": 13
+    },
+    "identity_confidence": {
+      "low": 15,
+      "medium": 13
+    },
+    "pipeline_status": {
+      "complete": 9,
+      "partial": 13,
+      "failed": 6
+    },
+    "cache_status": {
+      "miss_saved": 7,
+      "miss_not_saved": 19,
+      "hit": 2
+    },
+    "board_search_status": {
+      "unreachable": 11,
+      "skipped": 4,
+      "not_found": 1,
+      "ok": 1
+    },
+    "board_result_count": 17,
+    "cases_with_accepted_licenses": 1,
+    "accepted_license_count": 1,
+    "accepted_license_match_confidence": {
+      "medium": 1
+    },
+    "verified_metrics": {
+      "identity_coverage_yield": {
+        "value": 0.5882352941176471,
+        "resolved_unique_phones": 10,
+        "unique_valid_phone_denominator": 17,
+        "resolved_case_ids": [
+          "P03",
+          "P04",
+          "P06",
+          "P07",
+          "P08",
+          "P09",
+          "P11",
+          "P13",
+          "P15",
+          "P16"
+        ]
+      },
+      "identity_accuracy": {
+        "value": 1.0,
+        "correct_predictions": 8,
+        "judgeable_prediction_denominator": 8,
+        "judgeable_case_ids": [
+          "P03",
+          "P04",
+          "P08",
+          "P09",
+          "P11",
+          "P13",
+          "P15",
+          "P16"
+        ],
+        "incorrect_case_ids": [],
+        "coverage_miss_case_ids": [
+          "P01",
+          "P02",
+          "P05",
+          "P12",
+          "P14",
+          "P28"
+        ],
+        "unknown_ground_truth_case_ids": [
+          "P06",
+          "P07",
+          "P10"
+        ]
+      },
+      "license_precision": {
+        "value": 1.0,
+        "verified_correct_predictions": 1,
+        "judgeable_prediction_denominator": 1,
+        "unverified_prediction_count": 0,
+        "reason_if_unavailable": null
+      },
+      "license_recall": {
+        "value": 0.125,
+        "recovered_verified_licenses": 1,
+        "verified_reference_denominator": 8,
+        "reference_set": [
+          {
+            "case_id": "P03",
+            "board_id": "DPOR",
+            "board_name": "Virginia Department of Professional and Occupational Regulation",
+            "license_number": "2710061674",
+            "holder_name": "JOTIS LAMAR BROWNLEE",
+            "license_type": "Tradesman",
+            "specialty": "Master Plumber (MPLB)",
+            "expiration_date": "2025-09-30",
+            "raw_license_status": null,
+            "raw_license_status_note": "Unknown/not displayed in the manual official evidence."
+          },
+          {
+            "case_id": "P04",
+            "board_id": "MD_ELECTRICIANS",
+            "board_name": "Maryland State Board of Electricians",
+            "license_number": "14003",
+            "holder_name": "BELVIN DOUGLAS MITCHELL",
+            "license_type": "STATEWIDE MASTER ELECTRICIAN",
+            "raw_license_status": "INSURED",
+            "normalized_status": "active",
+            "expiration_date": "2026-12-19"
+          },
+          {
+            "case_id": "P08",
+            "board_id": "TSBPE",
+            "license_number": "20628"
+          },
+          {
+            "case_id": "P08",
+            "board_id": "TDLR",
+            "license_number": "30557"
+          },
+          {
+            "case_id": "P08",
+            "board_id": "TDLR",
+            "license_number": "TACLA00135747C"
+          },
+          {
+            "case_id": "P09",
+            "board_id": "TDLR",
+            "license_number": "33423"
+          },
+          {
+            "case_id": "P09",
+            "board_id": "TDLR",
+            "license_number": "TACLB00112806E"
+          },
+          {
+            "case_id": "P11",
+            "board_id": "TSBPE",
+            "license_number": "45226"
+          }
+        ]
+      },
+      "secondary_row_level_identity_coverage": {
+        "value": 0.5909090909090909,
+        "resolved_valid_rows": 13,
+        "valid_row_denominator": 22,
+        "note": "Secondary only; formatting duplicates are included."
+      }
+    },
+    "phase2_metrics": {
+      "known_license_cases": 5,
+      "known_license_case_ids": [
+        "P03",
+        "P04",
+        "P08",
+        "P09",
+        "P11"
+      ],
+      "known_licenses": 8,
+      "accepted_license_predictions": 1,
+      "accepted_verified_licenses": 1,
+      "precision": 1.0,
+      "recall": 0.125,
+      "remaining_verified_licenses_not_recovered": 7,
+      "recovered_through_registry_legal_name": 0,
+      "recovered_through_official_dba_trade_fictitious_name": 0,
+      "recovered_through_explicit_registry_principal": 0,
+    "registry_recovery_case_ids": {
+      "registry_legal_name": [],
+      "official_dba_trade_fictitious_name": [],
+      "explicit_registry_principal": []
+    },
+    "tx_outside_phase2_registry_expansion": {
+      "known_license_cases": 3,
+      "known_license_case_ids": [
+        "P08",
+        "P09",
+        "P11"
+      ],
+      "known_licenses": 6,
+      "note": "Texas board behavior is preserved and no Texas registry enrichment is run."
+    },
+    "source_outcomes_primary_unique_valid_cases": {
+        "not_found": {
+          "count": 1,
+          "case_ids": [
+            "P08"
+          ]
+        },
+        "ambiguous": {
+          "count": 0,
+          "case_ids": []
+        },
+        "captcha_blocked": {
+          "count": 1,
+          "case_ids": [
+            "P03"
+          ]
+        },
+        "unreachable": {
+          "count": 8,
+          "case_ids": [
+            "P03",
+            "P07",
+            "P08",
+            "P09",
+            "P11",
+            "P13",
+            "P15",
+            "P16"
+          ]
+        },
+        "skipped": {
+          "count": 8,
+          "case_ids": [
+            "P04",
+            "P13",
+            "P15",
+            "P16",
+            "P06",
+            "P08",
+            "P09"
+          ]
+        },
+        "unsupported": {
+          "count": 2,
+          "case_ids": [
+            "P08",
+            "P09"
+          ]
+        }
+      },
+      "baseline_comparison": {
+        "phase1_recovered_known_licenses": 1,
+        "phase1_known_license_denominator": 8,
+        "phase2_recovered_known_licenses": 1,
+        "phase2_known_license_denominator": 8,
+        "new_verified_recoveries": 0,
+        "note": "The checked-in Phase 1 baseline remains evaluation/day3_evaluation_report.json."
+      }
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "example_kind": "dated_initial_phase2_live_audit_artifact",
+  "artifact_status": "Historical observation from the initial Phase 2 run; source behavior may differ from the current expanded benchmark.",
+  "not_counted_in_current_evaluation": true,
+  "source_report": "evaluation/phase2_evaluation_report.json",
+  "case_id": "P04",
+  "base_identity": {
+    "business_name": "Powerworks LLC",
+    "address": "14025 Reverend Boucher Pl, Upper Marlboro, MD 20772, USA",
+    "place_id": "ChIJtTzYexmVt4kR90sCmfcoiYI",
+    "states": ["MD"],
+    "normalized_categories": ["electrical"]
+  },
+  "registry": {
+    "source": "Maryland SDAT Business Express",
+    "source_url": "https://egov.maryland.gov/BusinessExpress/EntitySearch",
+    "fetched_at": "2026-10-01T22:43:17.460112Z",
+    "status": "skipped",
+    "established_entity_id": null,
+    "established_entity_name": null,
+    "entity_established": false,
+    "legal_names": [],
+    "dbas": [],
+    "principals": [],
+    "candidate_establishment_evidence": [],
+    "manual_official_source_evidence_used": false,
+    "notes": [
+      "Maryland Business Express protects entity search and entity-detail submission with Cloudflare Turnstile.",
+      "No published unauthenticated automation contract is configured; protected browser interactions were not automated.",
+      "A manual official-source evidence export may be supplied for auditable enrichment."
+    ]
+  },
+  "expanded_search_keys": [
+    {
+      "value": "Powerworks LLC",
+      "normalized_value": "powerworks llc",
+      "semantic_role": "business_name",
+      "origin": "base_identity",
+      "registry": null,
+      "entity_id": null,
+      "source_url": null,
+      "registry_role": null
+    }
+  ],
+  "board_searches": [
+    {
+      "board": "Maryland State Board of Electricians",
+      "source_url": null,
+      "fetched_at": "2026-10-01T22:43:17.488136+00:00",
+      "status": "skipped",
+      "issue_kind": "no_safe_adapter",
+      "retrieved_candidates": [],
+      "notes": ["No safe official adapter is configured for this selection."]
+    }
+  ],
+  "final_decision": {
+    "accepted_licenses": [],
+    "outcome": "no_candidate_accepted",
+    "pipeline_status": "partial",
+    "rationale": "The protected registry and board paths were not automated. The Places key was preserved, and no license or unlicensed conclusion is asserted.",
+    "provenance": "Direct live pipeline observation recorded in evaluation/phase2_evaluation_report.json; no synthetic fixture or manual registry capture was used."
+  }
+}

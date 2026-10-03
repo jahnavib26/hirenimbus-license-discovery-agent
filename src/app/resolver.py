@@ -6,23 +6,28 @@ from collections.abc import Iterable
 import re
 from typing import Literal
 import unicodedata
+from urllib.parse import urlsplit
 
 from app.categories import CategoryMapper
 from app.models import (
     BusinessIdentity,
     CandidateAssessment,
     Evidence,
+    IdentityCandidateHypothesis,
     IdentityLookupResult,
     LookupError,
     PlaceDetails,
 )
 from app.phone import InvalidPhoneNumber, normalize_us_phone, parse_us_phone
 from app.places import PlacesClient, PlacesLookupError
+from app.search_keys import name_relationship, normalize_search_name
 from app.website import (
     WebsiteClient,
     WebsiteFetchError,
     WebsitePage,
+    fetch_bounded_first_party_pages,
     is_first_party_url,
+    is_known_third_party_url,
 )
 
 
@@ -50,9 +55,10 @@ class IdentityResolver:
 
         normalized_phone = input_phone.e164
 
+        details: list[PlaceDetails] = []
+        detail_notes: list[str] = []
         try:
             candidate_ids = list(dict.fromkeys(self._places.search_by_phone(normalized_phone)))
-            details = [self._places.get_place_details(place_id) for place_id in candidate_ids]
         except PlacesLookupError as exc:
             return IdentityLookupResult(
                 found=False,
@@ -61,8 +67,25 @@ class IdentityResolver:
                 notes=["The external lookup failed; this is not a no-result outcome."],
                 error=LookupError(kind="lookup_failure", message=str(exc)),
             )
+        for place_id in candidate_ids:
+            try:
+                details.append(self._places.get_place_details(place_id))
+            except PlacesLookupError as exc:
+                # Keep other independent Place candidates when one details request fails.
+                detail_notes.append(f"Place Details failed for candidate {place_id}: {exc}")
 
         if not details:
+            if candidate_ids:
+                return IdentityLookupResult(
+                    found=False,
+                    confidence="low",
+                    input_phone=input_phone,
+                    notes=["Places returned candidate IDs, but no candidate details were retrievable.", *detail_notes],
+                    error=LookupError(
+                        kind="lookup_failure",
+                        message="All Places candidate detail requests failed.",
+                    ),
+                )
             return IdentityLookupResult(
                 found=False,
                 confidence="low",
@@ -83,12 +106,16 @@ class IdentityResolver:
         )
 
         if not exact:
-            corroborated, website_evidence, website_notes = self._website_candidates(
+            corroborated, website_evidence, website_notes, hypotheses = self._website_candidates(
                 evaluated, normalized_phone
             )
+        else:
+            corroborated, website_evidence, website_notes, hypotheses = [], [], [], []
+
+        if not exact:
             if len(corroborated) == 1:
                 place = corroborated[0]
-                identity = self._identity(place, normalized_phone)
+                identity = self._identity(place, normalized_phone, website_evidence)
                 return IdentityLookupResult(
                     found=True,
                     confidence="medium",
@@ -97,19 +124,16 @@ class IdentityResolver:
                     evidence=[*evidence, *website_evidence],
                     assessments=assessments,
                     notes=[
-                        "First-party website evidence exactly matched the input phone, "
-                        "Places business name, and full Places street address.",
-                        "That corroboration overcame the different phone returned by "
-                        "Google Places; the Places phone mismatch remains visible in "
-                        "the evidence and candidate assessment.",
+                        *detail_notes,
+                        "First-party evidence matched the input phone and Places listing using exact name/address corroboration or a schema.org exact-name legal-entity claim for subsequent registry corroboration.",
+                        "That corroboration overcame the different phone returned by Google Places; the Places phone mismatch remains visible in the evidence and candidate assessment.",
                         *website_notes,
                         "The Google display name is not asserted to be a legal name or DBA.",
                     ],
                 )
             if len(corroborated) > 1:
                 website_notes.append(
-                    "Multiple Places candidates satisfied the complete first-party "
-                    "website corroboration rule, so identity remains ambiguous."
+                    "Multiple Places candidates satisfied the complete first-party website corroboration rule, so identity remains ambiguous."
                 )
             return IdentityLookupResult(
                 found=False,
@@ -117,7 +141,9 @@ class IdentityResolver:
                 input_phone=input_phone,
                 evidence=[*evidence, *website_evidence],
                 assessments=assessments,
+                candidate_hypotheses=hypotheses,
                 notes=[
+                    *detail_notes,
                     "Candidates were returned, but none had a non-conflicting phone that exactly normalized to the input.",
                     "Search ranking was not treated as proof of identity.",
                     *website_notes,
@@ -132,6 +158,7 @@ class IdentityResolver:
                 evidence=evidence,
                 assessments=assessments,
                 notes=[
+                    *detail_notes,
                     "An exact-phone candidate exists, but another returned phone value creates a meaningful conflict.",
                     "The conflict vetoed automatic identity resolution.",
                 ],
@@ -145,6 +172,7 @@ class IdentityResolver:
                 evidence=evidence,
                 assessments=assessments,
                 notes=[
+                    *detail_notes,
                     "Multiple Places listings have the exact input phone; identity is ambiguous.",
                     "No candidate was selected from search ranking.",
                 ],
@@ -159,10 +187,11 @@ class IdentityResolver:
                 input_phone=input_phone,
                 evidence=evidence,
                 assessments=assessments,
-                notes=["The exact-phone listing has no business name, so identity is insufficient."],
+                notes=[*detail_notes, "The exact-phone listing has no business name, so identity is insufficient."],
             )
 
         notes = [
+            *detail_notes,
             "A single Place Details record exactly matches the normalized input phone.",
             "The identity is verified from one source, so confidence is medium.",
             "The Google display name is not asserted to be a legal name or DBA.",
@@ -188,73 +217,197 @@ class IdentityResolver:
         self,
         evaluated: list[tuple[PlaceDetails, str]],
         normalized_phone: str,
-    ) -> tuple[list[PlaceDetails], list[Evidence], list[str]]:
-        if self._websites is None:
-            return [], [], []
-
+    ) -> tuple[list[PlaceDetails], list[Evidence], list[str], list[IdentityCandidateHypothesis]]:
         corroborated: list[PlaceDetails] = []
         evidence: list[Evidence] = []
         notes: list[str] = []
-        fetch_failed = False
+        hypotheses: list[IdentityCandidateHypothesis] = []
         for place, phone_result in evaluated:
-            if (
-                phone_result not in {"mismatch", "conflict", "unavailable"}
-                or not place.website_uri
-                or not place.display_name
-                or not place.formatted_address
-            ):
+            if phone_result == "exact" or not place.display_name:
                 continue
-            try:
-                page = self._websites.fetch(place.website_uri)
-            except WebsiteFetchError:
-                fetch_failed = True
-                notes.append(
-                    f"The first-party website fallback could not safely verify Place {place.place_id}; "
-                    "the conservative Places result was retained."
-                )
-                continue
-            if not is_first_party_url(place.website_uri, page.final_url):
-                notes.append(
-                    f"The website returned for Place {place.place_id} was not accepted as first-party."
-                )
-                continue
-            observed_phone = next(
-                (
-                    phone
-                    for phone in page.phones
-                    if phone.normalized == normalized_phone
-                ),
-                None,
+            place_evidence = Evidence(
+                source="google_places_phone_search",
+                source_id=place.place_id,
+                url=place.google_maps_uri,
+                observed={
+                    "candidate_discovery_path": "Google Places phone text search",
+                    "input_phone": normalized_phone,
+                    "places_phone_verification": phone_result,
+                    "places_returned_phones": _returned_phones(place),
+                    "registry_search_only": True,
+                },
             )
-            if observed_phone is None:
-                continue
-            page_text = _normalize_page_text(page.visible_text)
-            name = _normalize_page_text(place.display_name)
-            address = _normalize_address(place.formatted_address)
-            if not (
-                _contains_exact_tokens(page_text, name)
-                and _contains_exact_tokens(page_text, address)
-            ):
-                continue
-            corroborated.append(place)
-            evidence.append(
-                Evidence(
+            page_proofs: list[tuple[int, Evidence]] = []
+            failed_fetches = 0
+            pages: list[WebsitePage] = []
+            if place.website_uri and self._websites is not None:
+                if is_known_third_party_url(place.website_uri):
+                    notes.append(
+                        f"The website returned for Place {place.place_id} was not accepted as first-party."
+                    )
+                else:
+                    pages, failed_fetches = self._fetch_first_party_pages(place.website_uri)
+                    if not pages:
+                        notes.append(
+                            f"The first-party website fallback could not safely verify Place {place.place_id}; "
+                            "the conservative Places result remains an untrusted registry-search hypothesis."
+                        )
+            candidate_conflict = False
+            candidate_complete = False
+            # Website facts improve registry acquisition, but only an exact
+            # published-phone relationship can use the legacy direct path.
+            for page in pages:
+                if not is_first_party_url(place.website_uri or "", page.final_url):
+                    notes.append(
+                        f"The website returned for Place {place.place_id} was not accepted as first-party."
+                    )
+                    continue
+                page_text = _normalize_page_text(page.visible_text)
+                name = _normalize_page_text(place.display_name)
+                address = _normalize_address(place.formatted_address) if place.formatted_address else None
+                visible_name = _contains_exact_tokens(page_text, name)
+                visible_address = bool(address and _contains_exact_tokens(page_text, address))
+                matching_structures = [
+                    item for item in page.structured_identities
+                    if item.name
+                    and name_relationship(item.name, place.display_name) == "exact_normalized"
+                ]
+                structured_with_phone = [
+                    item for item in matching_structures
+                    if item.telephone
+                    and _normalize_observed_phone(item.telephone) == normalized_phone
+                ]
+                legal_names = {
+                    normalize_search_name(item.legal_name)
+                    for item in matching_structures
+                    if item.legal_name
+                }
+                structured_phones = {
+                    _normalize_observed_phone(item.telephone)
+                    for item in matching_structures
+                    if item.telephone
+                }
+                structured_addresses = {
+                    _normalize_address(item.address)
+                    for item in matching_structures
+                    if item.address
+                }
+                if (
+                    len(legal_names) > 1
+                    or (structured_with_phone and len(structured_phones) > 1)
+                    or (address and len(structured_addresses) > 1)
+                ):
+                    notes.append(
+                        f"Conflicting schema.org legal names were published for Place {place.place_id}; "
+                        "structured claims were retained as evidence but not selected for registry search."
+                    )
+                    candidate_conflict = True
+                structured_match = next(iter(structured_with_phone), None)
+                structured_name_claim = matching_structures[0] if matching_structures else None
+                structured_address_match = bool(
+                    structured_match and structured_match.address and address
+                    and _normalize_address(structured_match.address) == address
+                )
+                visible_complete = visible_name and visible_address
+                structured_complete = bool(
+                    structured_match
+                    and (structured_address_match or structured_match.legal_name)
+                )
+                observed_phone = next(
+                    (phone for phone in page.phones if phone.normalized == normalized_phone),
+                    None,
+                )
+                website_name_match = visible_name or bool(matching_structures)
+                website_address_match = visible_address or any(
+                    item.address and address
+                    and _normalize_address(item.address) == address
+                    for item in matching_structures
+                )
+                has_structured_legal_name = len(legal_names) == 1
+                extracted_fields = ["name"] if website_name_match else []
+                if observed_phone:
+                    extracted_fields.append("telephone")
+                if website_address_match:
+                    extracted_fields.append("address")
+                elif has_structured_legal_name:
+                    extracted_fields.append("legalName")
+                proof = Evidence(
                     source="official_business_website",
                     source_id=place.place_id,
                     url=page.final_url,
                     observed={
                         "public_name": place.display_name,
-                        "website_phone": observed_phone.raw,
-                        "website_phone_normalized": observed_phone.normalized,
+                        "website_phone": observed_phone.raw if observed_phone else None,
+                        "website_phone_normalized": observed_phone.normalized if observed_phone else None,
+                        "input_phone_published": observed_phone is not None,
                         "address": place.formatted_address,
                         "places_returned_phones": _returned_phones(place),
                         "places_phone_verification": phone_result,
+                        "canonical_domain": _canonical_domain(page.final_url),
+                        "website_exact_name_match": website_name_match,
+                        "website_exact_address_match": website_address_match,
+                        "structured_type": structured_name_claim.source_type if structured_name_claim else None,
+                        "structured_name": structured_name_claim.name if structured_name_claim else None,
+                        "structured_legal_name": (
+                            structured_name_claim.legal_name if len(legal_names) == 1 and structured_name_claim else None
+                        ),
+                        "structured_telephone": structured_name_claim.telephone if structured_name_claim else None,
+                        "structured_address": structured_name_claim.address if structured_name_claim else None,
+                        "structured_field_source": (
+                            "schema.org JSON-LD" if structured_name_claim else "visible first-party page"
+                        ),
+                        "extracted_fields": extracted_fields,
                     },
                 )
-            )
-        if fetch_failed:
-            corroborated = []
-        return corroborated, evidence, notes
+                website_strength = (
+                    int(visible_name or bool(matching_structures))
+                    + int(visible_address or any(
+                        item.address and address
+                        and _normalize_address(item.address) == address
+                        for item in matching_structures
+                    ))
+                    + int(len(legal_names) == 1)
+                )
+                page_proofs.append((website_strength, proof))
+                candidate_complete = candidate_complete or bool(
+                    observed_phone and (visible_complete or structured_complete)
+                )
+            if page_proofs:
+                page_proofs.sort(key=lambda item: item[0], reverse=True)
+                candidate_proof = page_proofs[0][1]
+                evidence.append(candidate_proof)
+                hypothesis_evidence = [place_evidence, candidate_proof]
+            else:
+                candidate_proof = None
+                hypothesis_evidence = [place_evidence]
+            if candidate_complete and not candidate_conflict:
+                corroborated.append(place)
+            if failed_fetches:
+                notes.append(
+                    f"{failed_fetches} bounded first-party page fetch(es) failed for Place {place.place_id}; other pages and candidates were evaluated independently."
+                )
+            hypotheses.append(IdentityCandidateHypothesis(
+                identity=self._identity(
+                    place,
+                    normalized_phone,
+                    [candidate_proof] if candidate_proof else [],
+                ),
+                evidence=hypothesis_evidence,
+                notes=[
+                    "This Google Places phone-search candidate is an acquisition hypothesis only; its Place Details phone was not an exact match.",
+                    "First-party name, legal-name, address, and domain observations may prioritize registry acquisition but do not establish identity.",
+                ],
+            ))
+        hypotheses.sort(
+            key=lambda hypothesis: _hypothesis_acquisition_strength(hypothesis),
+            reverse=True,
+        )
+        return corroborated, evidence, notes, hypotheses
+
+    def _fetch_first_party_pages(self, website_url: str) -> tuple[list[WebsitePage], int]:
+        if self._websites is None or is_known_third_party_url(website_url):
+            return [], 0
+        return fetch_bounded_first_party_pages(self._websites, website_url)
 
     @staticmethod
     def _phone_evaluation(
@@ -281,10 +434,26 @@ class IdentityResolver:
             return "conflict"
         return "exact"
 
-    def _identity(self, place: PlaceDetails, phone: str) -> BusinessIdentity:
+    def _identity(
+        self,
+        place: PlaceDetails,
+        phone: str,
+        website_evidence: list[Evidence] | None = None,
+    ) -> BusinessIdentity:
         raw_categories = _unique(filter(None, [place.primary_type, *place.types]))
+        legal_name = next((
+            item.observed.get("structured_legal_name")
+            for item in website_evidence or []
+            if item.source_id == place.place_id
+            and isinstance(item.observed.get("structured_legal_name"), str)
+            and item.observed.get("structured_name")
+            and name_relationship(
+                str(item.observed["structured_name"]), place.display_name or ""
+            ) == "exact_normalized"
+        ), None)
         return BusinessIdentity(
             business_name=place.display_name,
+            legal_name=legal_name,
             phone=phone,
             address=place.formatted_address,
             service_area=place.pure_service_area_business,
@@ -343,6 +512,25 @@ class IdentityResolver:
             phone_verification=phone_result,
             conflicts=conflicts,
         )
+
+
+def _hypothesis_acquisition_strength(
+    hypothesis: IdentityCandidateHypothesis,
+) -> int:
+    """Order registry acquisition by first-party evidence, never Places ranking."""
+
+    website = next(
+        (item for item in hypothesis.evidence if item.source == "official_business_website"),
+        None,
+    )
+    if website is None:
+        return 0
+    observed = website.observed
+    return (
+        4 * int(bool(observed.get("structured_legal_name")))
+        + 2 * int(bool(observed.get("website_exact_address_match")))
+        + int(bool(observed.get("website_exact_name_match")))
+    )
 
 
 def _unique(values: Iterable[str]) -> list[str]:
@@ -430,3 +618,8 @@ def _returned_phones(place: PlaceDetails) -> list[str]:
             if value
         )
     )
+
+
+def _canonical_domain(url: str) -> str | None:
+    host = urlsplit(url).hostname
+    return host.casefold().removeprefix("www.") if host else None
